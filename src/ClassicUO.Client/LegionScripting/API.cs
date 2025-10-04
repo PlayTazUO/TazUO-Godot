@@ -2166,10 +2166,10 @@ namespace ClassicUO.LegionScripting
         /// gump = API.GetGump()
         /// if gump:
         ///   API.SysMsg("Found the gump!")
-        ///   API.CloseGump(gump)
+        ///   gump.Dispose() #Close it
         /// ```
         /// </summary>
-        /// <param name="ID">Leabe blank to use last gump opened from server</param>
+        /// <param name="ID">Leave blank to use last gump opened from server</param>
         /// <returns></returns>
         public Gump GetGump(uint ID = uint.MaxValue) => MainThreadQueue.InvokeOnMainThread
         (() =>
