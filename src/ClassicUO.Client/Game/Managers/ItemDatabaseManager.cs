@@ -535,13 +535,9 @@ namespace ClassicUO.Game.Managers
             if (!_initialized || item == null || world?.Player == null || ProfileManager.CurrentProfile?.ItemDatabaseEnabled == false)
                 return;
 
-            Log.Debug($"Checking item: {item.Name}");
-
             if (item.ItemData.IsDoor || item.ItemData.IsLight || item.ItemData.IsInternal || item.ItemData.IsRoof || item.ItemData.IsWall  || item.IsMulti || item.IsCorpse || StaticFilters.IsRock(item.Graphic) || StaticFilters.IsTree(item.Graphic, out _))
                 return;
-
-            Log.Debug($"Adding item:  {item.Name}");
-
+            
             // Check if ItemData is accessible (TileData might not be loaded yet)
             Layer layer = Layer.Invalid;
             try
