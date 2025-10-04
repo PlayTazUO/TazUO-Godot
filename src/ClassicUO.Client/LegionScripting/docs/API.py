@@ -389,7 +389,9 @@ class PyProfile:
 
 class PyStatic:
     IsImpassible: bool = None
+    IsTree: bool = None
     IsVegetation: bool = None
+    Name: str = None
     __class__: str = None
 
 JournalEntries = None
