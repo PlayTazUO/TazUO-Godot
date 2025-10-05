@@ -756,7 +756,7 @@ namespace ClassicUO.LegionScripting
                 {
                     if (buff == null) continue;
 
-                    if (buff.Title.Contains(buffName))
+                    if (buff.Title.Contains(buffName, StringComparison.OrdinalIgnoreCase))
                         return true;
                 }
 
