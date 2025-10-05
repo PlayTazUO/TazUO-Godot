@@ -161,6 +161,44 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 ---
 
+### Dispose
+
+**Return Type:** `void` *(Does not return anything)*
+
+---
+
+### OnHotKey
+`(key, callback)`
+ Register or unregister a Python callback for a hotkey.
+ ### Register:
+ ```py
+ def on_shift_a():
+     API.SysMsg("SHIFT+A pressed!")
+ API.OnHotKey("SHIFT+A", on_shift_a)
+ while True:
+   API.ProcessCallbacks()
+   API.Pause(0.1)
+ ```
+ ### Unregister:
+ ```py
+ API.OnHotKey("SHIFT+A")
+ ```
+ The <paramref name="key"/> can include modifiers (CTRL, SHIFT, ALT),
+ for example: "CTRL+SHIFT+F1" or "ALT+A".
+
+
+**Parameters:**
+
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| `key` | `string` | ❌ No | Key combination to listen for, e.g. "CTRL+SHIFT+F1". |
+| `callback` | `object` | ✅ Yes | Python function to invoke when the hotkey is pressed.    
+         If <c>null</c> , the hotkey will be unregistered. |
+
+**Return Type:** `void` *(Does not return anything)*
+
+---
+
 ### SetSharedVar
 `(name, value)`
  Set a variable that is shared between scripts.

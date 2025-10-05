@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using ClassicUO;
 using ClassicUO.Game.UI;
 using ClassicUO.Game.UI.Gumps;
 using SDL3;
@@ -196,6 +197,8 @@ namespace ImGuiNET.SampleProgram.XNA
         /// </summary>
         protected virtual void UpdateInput()
         {
+            if(!Client.Game.IsActive) return;
+            
             var io = ImGui.GetIO();
 
             var mouse = Mouse.GetState();

@@ -252,8 +252,6 @@ namespace ClassicUO.LegionScripting
 
                     await cmd.ExecuteNonQueryAsync();
                 }
-
-                onComplete?.Invoke();
             }
             catch (Exception ex)
             {
@@ -262,6 +260,7 @@ namespace ClassicUO.LegionScripting
             finally
             {
                 _dbLock.Release();
+                onComplete?.Invoke();
             }
         }
 
@@ -298,7 +297,6 @@ namespace ClassicUO.LegionScripting
                     await cmd.ExecuteNonQueryAsync();
                 }
 
-                onComplete?.Invoke();
             }
             catch (Exception ex)
             {
@@ -307,6 +305,7 @@ namespace ClassicUO.LegionScripting
             finally
             {
                 _dbLock.Release();
+                onComplete?.Invoke();
             }
         }
 
