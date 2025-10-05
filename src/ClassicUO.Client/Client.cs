@@ -210,15 +210,8 @@ namespace ClassicUO
             Log.Trace("Running game...");
 
             // Initialize SQLSettingsManager
-            try
-            {
-                Settings = new SQLSettingsManager();
-                Log.Trace("SQLSettingsManager initialized");
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Failed to initialize SQLSettingsManager: {ex.Message}");
-            }
+            Settings = new SQLSettingsManager();
+            Log.Trace("SQLSettingsManager initialized");
 
             using (Game = new GameController(pluginHost))
             {

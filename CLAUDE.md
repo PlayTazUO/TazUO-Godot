@@ -66,7 +66,7 @@ TazUO includes two powerful scripting systems:
 ## Build System
 
 ### Build Configuration
-- **Framework**: .NET Framework 4.7.2
+- **Framework**: .NET 9
 - **Platform**: x64 only (`Directory.Build.props`)
 - **Configurations**: Debug and Release
 - **Output**: `bin/Debug/` or `bin/Release/`

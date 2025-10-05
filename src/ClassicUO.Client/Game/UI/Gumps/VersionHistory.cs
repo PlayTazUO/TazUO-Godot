@@ -11,6 +11,56 @@ namespace ClassicUO.Game.UI.Gumps
         private static string[] updateTexts =
         {
             """
+            /c[white][4.11.0]/cd
+            # Misc
+            - Autoloot now provides backups
+            - Finish up info section in assistant window
+            - Added ToggleMount to macros
+            - Added Bandage Agent to global queue system with priority
+            - Added hud options to imgui assistant
+            - Added titlebar to imgui assistant
+            - Added spell indicator to imgui assistant
+            - Added journal filters to imgui assistant
+            - Added friends list to imgui assistant
+            - Added spell bar settings to imgui assistant
+            - Allow healing friends with bandage agent
+            - Added item database to keep track of all known items
+            - Added dress agent to imgui assistant
+            - Moved old assistant to new menu
+            - Legion assistant and new style script manager reopen now
+            - ImGui windows can be closed with right click now
+            - Grid highlight selects best matching rule and show on item tooltips now(Can be toggled in options) ( <@397429006657519617> )
+
+            # Legion Py
+            - Better fake py api gen
+            - Begin conversion to Pywrapper for controls
+            - Added dropdown box to API
+            - Added `.Destroy()` to Entity objects(Items, Mobiles)
+            - Added new Modern UI gump option `API.CreateModernGump`
+            - Added events to API.Events(See https://TazUO.org docs)
+            - Fixed various Que spellings to Queue
+            - Added `.GetAvailableDressOutfits()`
+            - Added IsTree and Name to PyStatic ( <@188729541307531264> )
+            - Added `GetAllGumps()` (Server side gumps)
+            - Added Persistent Vars manager
+            - Convert persistent vars to use SQL
+            - `.GumpContains` should search better now
+            - Added MatchingHighlightName and MatchesHighlight bool to PyItem
+
+            # Bug fixes
+            - Fix autoloot loading incorrect profile
+            - Fixed a rare crash when pathfinding on the world map
+            - Fixed a rare crash with nameplates
+            - Fixed several potential rare crashes related to paperdolls
+            - Fix close corpse macro to also close GridContainer corpses
+            - Spiked whip now correctly shows abilities, thank you <@719588654913159190>
+            - Audio switches when an audio device is removed/added
+            - Grid container locked slots and autosort fixes
+            - No more double input in new assistant window
+            - Disable pooling for textboxes
+            """,
+
+            """
             /c[white][4.10.0]/cd
             # Misc
             - Add clear journal button
@@ -368,17 +418,6 @@ namespace ClassicUO.Game.UI.Gumps
             "- Added shift + double click to advanced shop gump to buy/sell all of that item\n" +
             "- Added use one health bar for last attack option\n" +
             "- Added `-optlink` command",
-            "/c[white][3.13.0]/cd\n" +
-            "- Fix item unintentional stacking\n" +
-            "- Potential small bug fix\n" +
-            "- Option to close anchored healthbars automatically\n" +
-            "- Added optional freeze on cast to spell indicator system\n" +
-            "- Save server side gump positions\n" +
-            "- Added addition equipment slots to the original paperdoll gump",
-            "/c[white][3.12.0]/cd\n" +
-            "- Added Exclude self to advanced nameplate options\n" +
-            "- Bug fix for spell indicator loading\n" +
-            "- Added override profile for same server characters only\n",
 
             "\n\n/c[white]For further history please visit our discord."
         };

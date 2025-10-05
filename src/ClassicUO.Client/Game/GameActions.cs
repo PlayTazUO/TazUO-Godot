@@ -1229,7 +1229,7 @@ internal static class GameActions
             SendAbility(world, 0, true);
         }
 
-            ClassicUO.LegionScripting.ScriptRecorder.Instance.RecordAbility("secondary");
+        ClassicUO.LegionScripting.ScriptRecorder.Instance.RecordAbility("secondary");
 
         ability ^= (Ability)0x80;
     }
@@ -1292,14 +1292,31 @@ internal static class GameActions
                 );
         }
 
-        public static void RequestEquippedOPL(World world)
+    public static void RequestEquippedOPL(World world)
+    {
+        foreach (Layer layer in Enum.GetValues(typeof(Data.Layer)))
         {
-            foreach (Layer layer in Enum.GetValues(typeof(Data.Layer)))
-            {
-                Item item = world.Player.FindItemByLayer(layer);
-                if(item == null) continue;
+            Item item = world.Player.FindItemByLayer(layer);
+            if(item == null) continue;
 
-                world.OPL.Contains(item); //Requests data if we don't have it
-            }
+            world.OPL.Contains(item); //Requests data if we don't have it
         }
     }
+
+    internal static bool Mount()
+    {
+        if (World.Instance == null) return false;
+
+        if (ProfileManager.CurrentProfile.SavedMountSerial == 0) return false;
+
+        Entity mount = World.Instance.Get(ProfileManager.CurrentProfile.SavedMountSerial);
+        if (mount != null)
+        {
+            DoubleClickQueued(ProfileManager.CurrentProfile.SavedMountSerial);
+            ScriptRecorder.Instance.RecordMount(mount);
+            return true;
+        }
+
+        return false;
+    }
+}

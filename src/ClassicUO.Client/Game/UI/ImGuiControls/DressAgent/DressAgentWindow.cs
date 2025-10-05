@@ -103,12 +103,7 @@ namespace ClassicUO.Game.UI.ImGuiControls
 
                 if (enterPressed || deactivated)
                 {
-                    if (string.IsNullOrWhiteSpace(_nameInput))
-                    {
-                        GameActions.Print("Config name cannot be empty!");
-                        _nameInput = _selectedConfig.Name; // Restore original
-                    }
-                    else
+                    if (!string.IsNullOrWhiteSpace(_nameInput))
                     {
                         _selectedConfig.Name = _nameInput.Trim();
                         DressAgentManager.Instance.Save();

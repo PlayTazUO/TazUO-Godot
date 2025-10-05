@@ -1091,25 +1091,10 @@ namespace ClassicUO.Game.Managers
                     break;
 
                 case MacroType.Mount:
-                    if (ProfileManager.CurrentProfile.SavedMountSerial != 0)
+                    if(!GameActions.Mount())
                     {
-                        Entity mount = _world.Get(ProfileManager.CurrentProfile.SavedMountSerial);
-                        if (mount != null)
-                        {
-                            GameActions.DoubleClickQueued(ProfileManager.CurrentProfile.SavedMountSerial);
-                            ClassicUO.LegionScripting.ScriptRecorder.Instance.RecordMount(mount);
-                        }
-                        else
-                        {
-                            GameActions.Print(_world, "Saved mount not found. Target a new mount.", 32);
-                            _world.TargetManager.SetTargeting(CursorTarget.SetMount, 0, TargetType.Neutral);
-                        }
-                    }
-                    else
-                    {
-                        GameActions.Print(_world, "No mount set. Target a mount to save it.", 48);
-                        _world.TargetManager.SetTargeting(CursorTarget.SetMount, 0, TargetType.Neutral);
-                        result = 1;
+                        GameActions.Print(_world, "Saved mount not found.", 32);
+                        goto case MacroType.SetMount;
                     }
                     break;
 
@@ -1119,8 +1104,7 @@ namespace ClassicUO.Game.Managers
                     break;
 
                 case MacroType.ToggleMount:
-                    var mountItem = _world.Player.FindItemByLayer(Layer.Mount);
-                    if (mountItem != null)
+                    if (_world.Player.FindItemByLayer(Layer.Mount) != null)
                     {
                         // Player is mounted, dismount
                         GameActions.DoubleClickQueued(_world.Player);
@@ -1129,25 +1113,10 @@ namespace ClassicUO.Game.Managers
                     else
                     {
                         // Player is not mounted, try to mount
-                        if (ProfileManager.CurrentProfile.SavedMountSerial != 0)
+                        if(!GameActions.Mount())
                         {
-                            Entity mount = _world.Get(ProfileManager.CurrentProfile.SavedMountSerial);
-                            if (mount != null)
-                            {
-                                GameActions.DoubleClickQueued(ProfileManager.CurrentProfile.SavedMountSerial);
-                                ClassicUO.LegionScripting.ScriptRecorder.Instance.RecordMount(mount);
-                            }
-                            else
-                            {
-                                GameActions.Print(_world, "Saved mount not found. Target a new mount.", 32);
-                                _world.TargetManager.SetTargeting(CursorTarget.SetMount, 0, TargetType.Neutral);
-                            }
-                        }
-                        else
-                        {
-                            GameActions.Print(_world, "No mount set. Target a mount to save it.", 48);
-                            _world.TargetManager.SetTargeting(CursorTarget.SetMount, 0, TargetType.Neutral);
-                            result = 1;
+                            GameActions.Print(_world, "Saved mount not found.", 32);
+                            goto case MacroType.SetMount;
                         }
                     }
                     break;

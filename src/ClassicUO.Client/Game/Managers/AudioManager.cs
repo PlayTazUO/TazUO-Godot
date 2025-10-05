@@ -541,7 +541,6 @@ namespace ClassicUO.Game.Managers
                     catch (NoAudioHardwareException) when (attempt < 2)
                     {
                         Log.Warn($"Audio test attempt {attempt + 1} failed - trying again...");
-                        System.Threading.Thread.Sleep(100);
                     }
                 }
                 return false;

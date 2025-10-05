@@ -361,24 +361,26 @@ namespace ClassicUO.Game.UI.ImGuiControls
             ItemDatabaseManager.Instance.SearchItems(
                 results =>
                 {
-                    _searchResults = results ?? new List<ItemInfo>();
-                    _searchInProgress = false;
+                    MainThreadQueue.EnqueueAction(() => {
+                        _searchResults = results ?? new List<ItemInfo>();
+                        _searchInProgress = false;
 
-                    // Cache all formatted strings for the results
-                    CacheResultStrings();
+                        // Cache all formatted strings for the results
+                        CacheResultStrings();
 
-                    if (_searchResults.Count == 0)
-                    {
-                        _statusMessage = "No items found";
-                    }
-                    else if (_searchResults.Count >= _maxResults)
-                    {
-                        _statusMessage = $"Found {_searchResults.Count} items (max limit reached)";
-                    }
-                    else
-                    {
-                        _statusMessage = $"Found {_searchResults.Count} items";
-                    }
+                        if (_searchResults.Count == 0)
+                        {
+                            _statusMessage = "No items found";
+                        }
+                        else if (_searchResults.Count >= _maxResults)
+                        {
+                            _statusMessage = $"Found {_searchResults.Count} items (max limit reached)";
+                        }
+                        else
+                        {
+                            _statusMessage = $"Found {_searchResults.Count} items";
+                        }
+                    });
                 },
                 serial: serial,
                 graphic: graphic,
