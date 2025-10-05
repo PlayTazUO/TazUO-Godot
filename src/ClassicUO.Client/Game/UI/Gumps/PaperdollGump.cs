@@ -450,7 +450,7 @@ namespace ClassicUO.Game.UI.Gumps
             }
         }
 
-        public override void Update()
+        public override void PreDraw()
         {
             if (IsDisposed)
             {
@@ -483,7 +483,7 @@ namespace ClassicUO.Game.UI.Gumps
                         ProfileManager.CurrentProfile.PaperdollPosition = Location;
             }
 
-            base.Update();
+            base.PreDraw();
 
             if (_paperDollInteractable != null && (CanLift || LocalSerial == World.Player.Serial))
             {
@@ -841,7 +841,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             public Layer Layer { get; }
 
-            public override void Update()
+            public override void PreDraw()
             {
                 Item item = _paperDollGump.World.Items.Get(LocalSerial);
 
@@ -892,7 +892,7 @@ namespace ClassicUO.Game.UI.Gumps
                     }
                 }
 
-                base.Update();
+                base.PreDraw();
             }
 
             private class ItemGumpFixed : ItemGump

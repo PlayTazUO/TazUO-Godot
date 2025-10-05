@@ -5,60 +5,229 @@ class Buff:
     Type = None
     Title: str = None
 
+class Events:
+
+    def OnPlayerHitsChanged(self, callback: Any) -> None:
+        """
+         Subscribe to player hits changed event. Callback receives the new hits value as an integer.
+         Example:
+         ```py
+         def on_hits_changed(new_hits):
+           API.SysMsg(f"Player hits changed to: {new_hits}")
+         API.Events.OnPlayerHitsChanged(on_hits_changed)
+         while not API.StopRequested:
+           API.ProcessCallbacks()
+           API.Pause(0.25)
+         ```
+        
+        """
+        pass
+
+    def OnBuffAdded(self, callback: Any) -> None:
+        """
+         Called when a buff is added to your char. Callback receives a Buff object.
+        
+        """
+        pass
+
+    def OnBuffRemoved(self, callback: Any) -> None:
+        """
+         Called when a buff is removed from your char. Callback receives a Buff object.
+        
+        """
+        pass
+
+    def OnPlayerDeath(self, callback: Any) -> None:
+        """
+         Called when the player dies. Callback receives your characters serial.
+        
+        """
+        pass
+
+    def OnOpenContainer(self, callback: Any) -> None:
+        """
+         Called when a container is opened. Callback receives the container serial.
+        
+        """
+        pass
+
+    def OnPlayerMoved(self, callback: Any) -> None:
+        """
+         Called when the player moves. Callback receives a PositionChangedArgs object with .NewLocation available in the object.
+        
+        """
+        pass
+
+    def OnItemCreated(self, callback: Any) -> None:
+        """
+         Called when a new item is created. Callback receives the item serial.
+        
+        """
+        pass
+
+class PyBaseControl:
+
+    def Add(self, childControl: PyControl) -> None:
+        """
+         Adds a child control to this control. Works with gumps too (gump.Add(control)).
+         Used in python API
+        
+        """
+        pass
+
+    def Add(self, childControl: Any) -> None:
+        pass
+
+    def GetX(self) -> int:
+        """
+         Returns the control's X position.
+         Used in python API
+        
+        """
+        pass
+
+    def GetY(self) -> int:
+        """
+         Returns the control's Y position.
+         Used in python API
+        
+        """
+        pass
+
+    def SetX(self, x: int) -> None:
+        """
+         Sets the control's X position.
+         Used in python API
+        
+        """
+        pass
+
+    def SetY(self, y: int) -> None:
+        """
+         Sets the control's Y position.
+         Used in python API
+        
+        """
+        pass
+
+    def SetPos(self, x: int, y: int) -> None:
+        """
+         Sets the control's X and Y positions.
+         Used in python API
+        
+        """
+        pass
+
+    def SetWidth(self, width: int) -> None:
+        """
+         Sets the control's width.
+         Used in python API
+        
+        """
+        pass
+
+    def SetHeight(self, height: int) -> None:
+        """
+         Sets the control's height.
+         Used in python API
+        
+        """
+        pass
+
+    def SetRect(self, x: int, y: int, width: int, height: int) -> None:
+        """
+         Sets the control's position and size in one operation.
+         Used in python API
+        
+        """
+        pass
+
+    def CenterXInViewPort(self) -> None:
+        """
+         Centers a GUMP horizontally in the viewport. Only works on Gump instances.
+         Used in python API
+        
+        """
+        pass
+
+    def CenterYInViewPort(self) -> None:
+        """
+         Centers a GUMP vertically in the viewport. Only works on Gump instances.
+         Used in python API
+        
+        """
+        pass
+
+    def Dispose(self) -> None:
+        """
+         Close/Destroy the control
+        
+        """
+        pass
+
 class PyControl:
 
-    def SetRect(x: int, y: int, w: int, h: int) -> "PyControl":
+    def SetRect(self, x: int, y: int, w: int, h: int) -> "PyControl":
         """
          Used in python API
         
         """
         pass
 
-    def SetWidth(width: int) -> "PyControl":
+    def SetWidth(self, width: int) -> "PyControl":
         """
          Used in python API
         
         """
         pass
 
-    def SetHeight(height: int) -> "PyControl":
+    def SetHeight(self, height: int) -> "PyControl":
         """
          Used in python API
         
         """
         pass
 
-    def SetX(x: int) -> "PyControl":
+    def SetX(self, x: int) -> "PyControl":
         """
          Used in python API
         
         """
         pass
 
-    def SetY(y: int) -> "PyControl":
+    def SetY(self, y: int) -> "PyControl":
         """
          Used in python API
         
         """
         pass
 
-    def SetPos(x: int, y: int) -> "PyControl":
+    def SetPos(self, x: int, y: int) -> "PyControl":
         """
          Use int python API
         
         """
         pass
 
-    def GetX() -> int:
+    def GetX(self) -> int:
         """
          Used in python API
         
         """
         pass
 
-    def GetY() -> int:
+    def GetY(self) -> int:
         """
          Used in python API
+        
+        """
+        pass
+
+class PyControlDropDown:
+
+    def GetSelectedIndex(self) -> int:
+        """
+         Get the selected index of the dropdown. The first entry is 0.
         
         """
         pass
@@ -69,7 +238,7 @@ class PyEntity:
     __class__: str = None
     Serial: int = None
 
-    def ToString() -> str:
+    def ToString(self) -> str:
         """
          Returns a readable string representation of the entity.
          Used when printing or converting the object to a string in Python scripts.
@@ -77,7 +246,15 @@ class PyEntity:
         """
         pass
 
-    def SetHue(hue: int) -> None:
+    def SetHue(self, hue: int) -> None:
+        pass
+
+    def Destroy(self) -> None:
+        """
+         This will remove the item from the client, it will reappear if you leave the area and come back.
+         This object will also no longer be available and may cause issues if you try to interact with it further.
+        
+        """
         pass
 
 class PyGameObject:
@@ -89,7 +266,7 @@ class PyGameObject:
     Graphic: int = None
     Hue: int = None
 
-    def HasLineOfSightFrom(observer: PyGameObject = None) -> bool:
+    def HasLineOfSightFrom(self, observer: PyGameObject = None) -> bool:
         """
          Determines if there is line of sight from the specified observer to this object.
          If no observer is specified, it defaults to the player.
@@ -97,7 +274,7 @@ class PyGameObject:
         """
         pass
 
-    def ToString() -> str:
+    def ToString(self) -> str:
         """
          Returns a readable string representation of the game object.
          Used when printing or converting the object to a string in Python scripts.
@@ -105,7 +282,7 @@ class PyGameObject:
         """
         pass
 
-    def __repr__() -> str:
+    def __repr__(self) -> str:
         """
          Returns a detailed string representation of the object.
          This string is used by Python’s built-in <c>repr()</c> function.
@@ -115,10 +292,12 @@ class PyGameObject:
 
 class PyItem:
     Amount: int = None
-    IsCorpse: bool = None
     Opened: bool = None
     Container: int = None
     __class__: str = None
+    IsCorpse: bool = None
+    MatchingHighlightName: str = None
+    MatchesHighlight: bool = None
 
 class PyJournalEntry:
     Hue: int = None
@@ -151,6 +330,57 @@ class PyMobile:
 class PyMulti:
     __class__: str = None
 
+class PyNineSliceGump:
+    NineSliceGump = None
+    Gump: Gump = None
+
+    def GetHue(self) -> int:
+        """
+         Gets the current hue of the nine-slice gump
+        
+        """
+        pass
+
+    def SetHue(self, hue: int) -> None:
+        """
+         Sets the hue of the nine-slice gump
+        
+        """
+        pass
+
+    def GetResizable(self) -> bool:
+        """
+         Gets whether the gump is resizable
+        
+        """
+        pass
+
+    def SetResizable(self, resizable: bool) -> None:
+        """
+         Sets whether the gump is resizable
+        
+        """
+        pass
+
+    def GetBorderSize(self) -> int:
+        """
+         Gets the border size of the nine-slice
+        
+        """
+        pass
+
+    def SetBorderSize(self, borderSize: int) -> None:
+        """
+         Sets the border size of the nine-slice
+        
+        """
+        pass
+
+class ModernNineSliceGump:
+
+    def SetResizeCallback(self, callback: Any) -> None:
+        pass
+
 class PyProfile:
     CharacterName: str = None
     ServerName: str = None
@@ -161,7 +391,9 @@ class PyProfile:
 
 class PyStatic:
     IsImpassible: bool = None
+    IsTree: bool = None
     IsVegetation: bool = None
+    Name: str = None
     __class__: str = None
 
 JournalEntries = None
@@ -174,6 +406,7 @@ LastTargetPos = None
 LastTargetGraphic: int = None
 Found: int = None
 PyProfile: PyProfile = None
+Events = None
 StopRequested: bool = None
 CancellationToken = None
 
@@ -209,6 +442,31 @@ def ProcessCallbacks() -> None:
        API.ProcessCallbacks()
        API.Pause(0.1)
      ```
+    
+    """
+    pass
+
+def Dispose() -> None:
+    pass
+
+def OnHotKey(key: str, callback: Any = None) -> None:
+    """
+     Register or unregister a Python callback for a hotkey.
+     ### Register:
+     ```py
+     def on_shift_a():
+         API.SysMsg("SHIFT+A pressed!")
+     API.OnHotKey("SHIFT+A", on_shift_a)
+     while True:
+       API.ProcessCallbacks()
+       API.Pause(0.1)
+     ```
+     ### Unregister:
+     ```py
+     API.OnHotKey("SHIFT+A")
+     ```
+     The <paramref name="key"/> can include modifiers (CTRL, SHIFT, ALT),
+     for example: "CTRL+SHIFT+F1" or "ALT+A".
     
     """
     pass
@@ -398,7 +656,7 @@ def ClearMoveQueue() -> None:
     """
     pass
 
-def QueMoveItem(serial: int, destination: int, amt: int = 0, x: int = 0xFFFF, y: int = 0xFFFF) -> None:
+def QueueMoveItem(serial: int, destination: int, amt: int = 0, x: int = 0xFFFF, y: int = 0xFFFF) -> None:
     """
      Move an item to another container.
      Use x, and y if you don't want items stacking in the desination container.
@@ -414,7 +672,7 @@ def QueMoveItem(serial: int, destination: int, amt: int = 0, x: int = 0xFFFF, y:
          for item in items:
              data = API.ItemNameAndProps(item)
              if data and "An Exotic Fish" in data:
-                 API.QueMoveItem(item, barrel)
+                 API.QueueMoveItem(item, barrel)
      ```
     
     """
@@ -443,14 +701,14 @@ def MoveItem(serial: int, destination: int, amt: int = 0, x: int = 0xFFFF, y: in
     """
     pass
 
-def QueMoveItemOffset(serial: int, amt: int = 0, x: int = 0, y: int = 0, z: int = 0, OSI: bool = False) -> None:
+def QueueMoveItemOffset(serial: int, amt: int = 0, x: int = 0, y: int = 0, z: int = 0, OSI: bool = False) -> None:
     """
      Move an item to the ground near you.
      Example:
      ```py
      items = API.ItemsInContainer(API.Backpack)
      for item in items:
-       API.QueMoveItemOffset(item, 0, 1, 0, 0)
+       API.QueueMoveItemOffset(item, 0, 1, 0, 0)
      ```
     
     """
@@ -501,6 +759,19 @@ def Dress(name: str) -> None:
      Example:
      ```py
      API.Dress("PvP Gear")
+     ```
+    
+    """
+    pass
+
+def GetAvailableDressOutfits() -> Any:
+    """
+     Get all available dress configurations.
+     Example:
+     ```py
+     outfits = API.GetAvailableDressOutfits()
+     if outfits:
+       Dress(outfits[0])
      ```
     
     """
@@ -1249,8 +1520,15 @@ def GetGump(ID: int = 1337) -> Gump:
      gump = API.GetGump()
      if gump:
        API.SysMsg("Found the gump!")
-       API.CloseGump(gump)
+       gump.Dispose() #Close it
      ```
+    
+    """
+    pass
+
+def GetAllGumps() -> Any:
+    """
+     Gets all currently open server-side gumps.
     
     """
     pass
@@ -1655,7 +1933,7 @@ def CreateGump(acceptMouseInput: bool = True, canMove: bool = True, keepOpen: bo
     """
     pass
 
-def AddGump(g: Gump) -> None:
+def AddGump(g: Any) -> None:
     """
      Add a gump to the players screen.
      Example:
@@ -1885,6 +2163,21 @@ def CreateGumpPic(graphic: int, x: int = 0, y: int = 0, hue: int = 0) -> PyContr
     """
     pass
 
+def CreateDropDown(width: int, items: list[str], selectedIndex: int = 0) -> PyControlDropDown:
+    """
+     Creates a dropdown control (combobox) with the specified width and items.
+    
+    """
+    pass
+
+def CreateModernGump(x: int, y: int, width: int, height: int, resizable: bool = True, minWidth: int = 50, minHeight: int = 50, onResized: Any = None) -> Any:
+    """
+     Creates a modern nine-slice gump using ModernUIConstants for consistent styling.
+     The gump uses the standard modern UI panel texture and border size internally.
+    
+    """
+    pass
+
 def AddControlOnClick(control: PyControl, onClick: Any, leftOnly: bool = True) -> PyControl:
     """
      Add an onClick callback to a control.
@@ -1995,12 +2288,12 @@ def RemoveMapMarker(name: str) -> None:
     """
     pass
 
-def IsProcessingMoveQue() -> bool:
+def IsProcessingMoveQueue() -> bool:
     """
      Check if the move item queue is being processed. You can use this to prevent actions if the queue is being processed.
      Example:
      ```py
-     if API.IsProcessingMoveQue():
+     if API.IsProcessingMoveQueue():
        API.Pause(0.5)
      ```
     

@@ -512,6 +512,7 @@ sealed class PacketHandlers
         }
 
         string oldName = entity.Name;
+        ushort oldHits = entity.Hits;
         entity.Name = p.ReadASCII(30);
         entity.Hits = p.ReadUInt16BE();
         entity.HitsMax = p.ReadUInt16BE();
@@ -715,6 +716,12 @@ sealed class PacketHandlers
             if (mobile == world.Player)
             {
                 TitleBarStatsManager.UpdateTitleBar();
+            }
+
+            // Check for bandage healing
+            if (oldHits != mobile.Hits)
+            {
+                BandageManager.Instance.Value.OnMobileHpChanged(mobile, oldHits, mobile.Hits);
             }
         }
     }
@@ -1857,6 +1864,7 @@ sealed class PacketHandlers
             return;
         }
 
+        ushort oldHits = entity.Hits;
         entity.HitsMax = p.ReadUInt16BE();
         entity.Hits = p.ReadUInt16BE();
 
@@ -1882,6 +1890,12 @@ sealed class PacketHandlers
             if (mobile == world.Player)
             {
                 TitleBarStatsManager.UpdateTitleBar();
+            }
+
+            // Check for bandage healing
+            if (oldHits != mobile.Hits)
+            {
+                BandageManager.Instance.Value.OnMobileHpChanged(mobile, oldHits, mobile.Hits);
             }
         }
     }
@@ -3600,6 +3614,7 @@ sealed class PacketHandlers
             return;
         }
 
+        ushort oldHits = entity.Hits;
         entity.HitsMax = p.ReadUInt16BE();
         entity.Hits = p.ReadUInt16BE();
 
@@ -3612,6 +3627,16 @@ sealed class PacketHandlers
         {
             SpellVisualRangeManager.Instance.ClearCasting();
             TitleBarStatsManager.UpdateTitleBar();
+        }
+
+        // Check for bandage healing for all mobiles
+        if (SerialHelper.IsMobile(entity.Serial) && oldHits != entity.Hits)
+        {
+            Mobile mobile = entity as Mobile;
+            if (mobile != null)
+            {
+                BandageManager.Instance.Value.OnMobileHpChanged(mobile, oldHits, entity.Hits);
+            }
         }
     }
 
@@ -5275,17 +5300,16 @@ sealed class PacketHandlers
         House house
     )
     {
-        //byte* decompressedBytes = stackalloc byte[dlen];
-        bool ismovable = item.ItemData.IsMultiMovable;
-
         byte[] buffer = null;
-        Span<byte> span =
-            dlen <= 1024
-                ? stackalloc byte[dlen]
-                : (buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(dlen));
 
         try
         {
+            bool ismovable = item.ItemData.IsMultiMovable;
+
+            Span<byte> span = dlen <= 1024
+                            ? stackalloc byte[dlen]
+                            : (buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(dlen));
+
             var result = ZLib.Decompress(source.Slice(sourcePosition, clen), span.Slice(0, dlen));
             var reader = new StackDataReader(span.Slice(0, dlen));
 
@@ -5490,19 +5514,26 @@ sealed class PacketHandlers
                 continue;
             }
 
-            ReadUnsafeCustomHouseData(
-                p.Buffer,
-                p.Position,
-                dlen,
-                clen,
-                planeZ,
-                planeMode,
-                minX,
-                minY,
-                maxY,
-                foundation,
-                house
-            );
+            try
+            {
+                ReadUnsafeCustomHouseData(
+                    p.Buffer,
+                    p.Position,
+                    dlen,
+                    clen,
+                    planeZ,
+                    planeMode,
+                    minX,
+                    minY,
+                    maxY,
+                    foundation,
+                    house
+                );
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Failed to read custom house data: {e}");
+            }
 
             p.Skip(clen);
         }
@@ -6341,7 +6372,7 @@ sealed class PacketHandlers
         }
         else if (SerialHelper.IsItem(containerSerial))
         {
-            //AutoLootManager.Instance.HandleCorpse(World.Items.Get(containerSerial));
+            ItemDatabaseManager.Instance.AddOrUpdateItem(item, world);
 
             Gump gump = UIManager.GetGump<BulletinBoardGump>(containerSerial);
 
@@ -6565,6 +6596,9 @@ sealed class PacketHandlers
                 EventSink.InvokeOnItemCreated(item);
             else
                 EventSink.InvokeOnItemUpdated(item);
+
+            // Update item database
+            ItemDatabaseManager.Instance.AddOrUpdateItem(item, world);
         }
         else
         {

@@ -21,7 +21,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 [Additional notes](../notes/)  
 
-*This was generated on `9/25/25`.*
+*This was generated on `10/5/25`.*
 
 ## Properties
 ### `JournalEntries`
@@ -94,6 +94,10 @@ You can now type `-updateapi` in game to download the latest API.py file.
  Access useful player settings.
 
 
+### `Events`
+
+**Type:** `Events`
+
 ### `StopRequested`
 
 **Type:** `bool`
@@ -152,6 +156,44 @@ You can now type `-updateapi` in game to download the latest API.py file.
    API.Pause(0.1)
  ```
 
+
+**Return Type:** `void` *(Does not return anything)*
+
+---
+
+### Dispose
+
+**Return Type:** `void` *(Does not return anything)*
+
+---
+
+### OnHotKey
+`(key, callback)`
+ Register or unregister a Python callback for a hotkey.
+ ### Register:
+ ```py
+ def on_shift_a():
+     API.SysMsg("SHIFT+A pressed!")
+ API.OnHotKey("SHIFT+A", on_shift_a)
+ while True:
+   API.ProcessCallbacks()
+   API.Pause(0.1)
+ ```
+ ### Unregister:
+ ```py
+ API.OnHotKey("SHIFT+A")
+ ```
+ The <paramref name="key"/> can include modifiers (CTRL, SHIFT, ALT),
+ for example: "CTRL+SHIFT+F1" or "ALT+A".
+
+
+**Parameters:**
+
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| `key` | `string` | ❌ No | Key combination to listen for, e.g. "CTRL+SHIFT+F1". |
+| `callback` | `object` | ✅ Yes | Python function to invoke when the hotkey is pressed.    
+         If <c>null</c> , the hotkey will be unregistered. |
 
 **Return Type:** `void` *(Does not return anything)*
 
@@ -437,7 +479,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 ---
 
-### QueMoveItem
+### QueueMoveItem
 `(serial, destination, amt, x, y)`
  Move an item to another container.
  Use x, and y if you don't want items stacking in the desination container.
@@ -453,7 +495,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
      for item in items:
          data = API.ItemNameAndProps(item)
          if data and "An Exotic Fish" in data:
-             API.QueMoveItem(item, barrel)
+             API.QueueMoveItem(item, barrel)
  ```
 
 
@@ -506,14 +548,14 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 ---
 
-### QueMoveItemOffset
+### QueueMoveItemOffset
 `(serial, amt, x, y, z, OSI)`
  Move an item to the ground near you.
  Example:
  ```py
  items = API.ItemsInContainer(API.Backpack)
  for item in items:
-   API.QueMoveItemOffset(item, 0, 1, 0, 0)
+   API.QueueMoveItemOffset(item, 0, 1, 0, 0)
  ```
 
 
@@ -616,6 +658,21 @@ You can now type `-updateapi` in game to download the latest API.py file.
 | `name` | `string` | ❌ No | The name of the dress configuration |
 
 **Return Type:** `void` *(Does not return anything)*
+
+---
+
+### GetAvailableDressOutfits
+
+ Get all available dress configurations.
+ Example:
+ ```py
+ outfits = API.GetAvailableDressOutfits()
+ if outfits:
+   Dress(outfits[0])
+ ```
+
+
+**Return Type:** `PythonList`
 
 ---
 
@@ -1838,7 +1895,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
  gump = API.GetGump()
  if gump:
    API.SysMsg("Found the gump!")
-   API.CloseGump(gump)
+   gump.Dispose() #Close it
  ```
 
 
@@ -1846,9 +1903,18 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 | Name | Type | Optional | Description |
 | --- | --- | --- | --- |
-| `ID` | `uint` | ✅ Yes | Leabe blank to use last gump opened from server |
+| `ID` | `uint` | ✅ Yes | Leave blank to use last gump opened from server |
 
 **Return Type:** `Gump`
+
+---
+
+### GetAllGumps
+
+ Gets all currently open server-side gumps.
+
+
+**Return Type:** `PythonList`
 
 ---
 
@@ -2492,7 +2558,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 | Name | Type | Optional | Description |
 | --- | --- | --- | --- |
-| `g` | `Gump` | ❌ No | The gump to add |
+| `g` | `object` | ❌ No | The gump to add |
 
 **Return Type:** `void` *(Does not return anything)*
 
@@ -2847,6 +2913,46 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 ---
 
+### CreateDropDown
+`(width, items, selectedIndex)`
+ Creates a dropdown control (combobox) with the specified width and items.
+
+
+**Parameters:**
+
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| `width` | `int` | ❌ No | The width of the dropdown control |
+| `items` | `string[]` | ❌ No | Array of strings to display as dropdown options |
+| `selectedIndex` | `int` | ✅ Yes | The initially selected item index (default: 0) |
+
+**Return Type:** `PyControlDropDown`
+
+---
+
+### CreateModernGump
+`(x, y, width, height, resizable, minWidth, minHeight, onResized)`
+ Creates a modern nine-slice gump using ModernUIConstants for consistent styling.
+ The gump uses the standard modern UI panel texture and border size internally.
+
+
+**Parameters:**
+
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| `x` | `int` | ❌ No | X position |
+| `y` | `int` | ❌ No | Y position |
+| `width` | `int` | ❌ No | Initial width |
+| `height` | `int` | ❌ No | Initial height |
+| `resizable` | `bool` | ✅ Yes | Whether the gump can be resized by dragging corners (default: true) |
+| `minWidth` | `int` | ✅ Yes | Minimum width (default: 50) |
+| `minHeight` | `int` | ✅ Yes | Minimum height (default: 50) |
+| `onResized` | `object` | ✅ Yes | Optional callback function called when the gump is resized |
+
+**Return Type:** `PyNineSliceGump`
+
+---
+
 ### AddControlOnClick
 `(control, onClick, leftOnly)`
  Add an onClick callback to a control.
@@ -3037,12 +3143,12 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 ---
 
-### IsProcessingMoveQue
+### IsProcessingMoveQueue
 
  Check if the move item queue is being processed. You can use this to prevent actions if the queue is being processed.
  Example:
  ```py
- if API.IsProcessingMoveQue():
+ if API.IsProcessingMoveQueue():
    API.Pause(0.5)
  ```
 

@@ -39,7 +39,7 @@ namespace ClassicUO
 
         private bool _ignoreNextTextInput;
         private readonly float[] _intervalFixedUpdate = new float[2];
-        private double _totalElapsed, _currentFpsTime, _nextSlowUpdate;
+        private double _totalElapsed, _currentFpsTime;
         private uint _totalFrames;
         private UltimaBatcher2D _uoSpriteBatch;
         private bool _suppressedDraw;
@@ -197,6 +197,7 @@ namespace ClassicUO
         protected override void UnloadContent()
         {
             DiscordManager.Instance?.BeginDisconnect();
+            ItemDatabaseManager.Instance.Dispose();
             SDL_GetWindowBordersSize(Window.Handle, out int top, out int left, out _, out _);
 
             Settings.GlobalSettings.WindowPosition = new Point(
@@ -438,14 +439,6 @@ namespace ClassicUO
             MainThreadQueue.ProcessQueue();
             Profiler.ExitContext("MTQ");
 
-            if (Time.Ticks >= _nextSlowUpdate)
-            {
-                Profiler.EnterContext("Slow Update");
-                _nextSlowUpdate = Time.Ticks + 500;
-                UIManager.SlowUpdate();
-                Profiler.ExitContext("Slow Update");
-            }
-
             _totalElapsed += gameTime.ElapsedGameTime.TotalMilliseconds;
             _currentFpsTime += gameTime.ElapsedGameTime.TotalMilliseconds;
 
@@ -498,6 +491,9 @@ namespace ClassicUO
         protected override void Draw(GameTime gameTime)
         {
             Profiler.EndFrame();
+
+            UIManager.PreDraw();
+
             Profiler.BeginFrame();
             Profiler.ExitContext("OutOfContext");
             Profiler.EnterContext("Draw-Tiles");
@@ -578,10 +574,12 @@ namespace ClassicUO
             {
                 case SDL_EventType.SDL_EVENT_AUDIO_DEVICE_ADDED:
                     Log.Trace($"AUDIO ADDED: {sdlEvent->adevice.which}");
+                    Audio?.OnAudioDeviceAdded();
                     break;
 
                 case SDL_EventType.SDL_EVENT_AUDIO_DEVICE_REMOVED:
                     Log.Trace($"AUDIO REMOVED: {sdlEvent->adevice.which}");
+                    Audio?.OnAudioDeviceRemoved();
                     break;
 
                 case SDL_EventType.SDL_EVENT_WINDOW_MOUSE_ENTER:

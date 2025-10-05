@@ -19,6 +19,7 @@ using System.Xml;
 using ClassicUO.Game.UI;
 using ClassicUO.Game.UI.Gumps.GridHighLight;
 using ClassicUO.Game.UI.Gumps.SpellBar;
+using ClassicUO.Game.UI.ImGuiControls;
 
 namespace ClassicUO.Configuration
 {
@@ -143,6 +144,7 @@ namespace ClassicUO.Configuration
         public bool BandageAgentCheckPoisoned { get; set; } = false;
         public int BandageAgentHPPercentage { get; set; } = 80;
         public bool BandageAgentCheckInvul { get; set; } = true;
+        public bool BandageAgentBandageFriends { get; set; } = false;
 
         public bool EnableDeathScreen { get; set; } = true;
         public bool EnableBlackWhiteEffect { get; set; } = true;
@@ -249,7 +251,6 @@ namespace ClassicUO.Configuration
         // title bar stats
         public bool EnableTitleBarStats { get; set; } = false;
         public TitleBarStatsMode TitleBarStatsMode { get; set; } = TitleBarStatsMode.Text;
-        public int TitleBarUpdateInterval { get; set; } = 1000;
         public int CounterBarRows { get; set; } = 1;
         public int CounterBarColumns { get; set; } = 5;
 
@@ -424,6 +425,8 @@ namespace ClassicUO.Configuration
         public List<List<int>> GridHighlight_PropMinVal { get; set; } = new List<List<int>>();
         public bool GridHighlight_CorpseOnly { get; set; } = false;
         public int GridHighlightSize { get; set; } = 1;
+        public bool GridHighlightProperties { get; set; } = true;
+        public bool GridHighlightShowRuleName { get; set; } = true;
         public List<bool> GridHighlight_AcceptExtraProperties { get; set; } = new List<bool>();
         public List<List<bool>> GridHighlight_IsOptionalProperties { get; set; } = new List<List<bool>>();
         public List<List<string>> GridHighlight_ExcludeNegatives { get; set; } = new List<List<string>>();
@@ -540,6 +543,8 @@ namespace ClassicUO.Configuration
 
         public bool EnableAutoLoot { get; set; } = false;
         public bool AutoLootHumanCorpses { get; set; } = false;
+
+        public bool ItemDatabaseEnabled { get; set; } = true;
 
         public static uint GumpsVersion { get; private set; }
 
@@ -738,7 +743,6 @@ namespace ClassicUO.Configuration
                     }
                 }
 
-
                 LinkedListNode<Gump> first = gumps.First;
 
                 while (first != null)
@@ -780,6 +784,38 @@ namespace ClassicUO.Configuration
 
                     first = gumps.First;
                 }
+
+                #region ImGui
+                if (ImGuiManager.IsInitialized)
+                {
+                    try
+                    {
+                        ImGuiWindow[] windows = ImGuiManager.Windows;
+                        if (windows != null && windows.Length > 0)
+                        {
+                            foreach (ImGuiWindow window in windows)
+                            {
+                                if(window == null || !window.IsOpen) continue;
+
+                                try
+                                {
+                                    xml.WriteStartElement("window");
+                                    window.Save(xml);
+                                    xml.WriteEndElement();
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log.Error($"Failed to save ImGui window '{window?.Title ?? "Unknown"}': {ex.Message}");
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error($"Failed to save ImGui windows: {ex.Message}");
+                    }
+                }
+                #endregion
 
                 xml.WriteEndElement();
                 xml.WriteEndDocument();
@@ -869,6 +905,12 @@ namespace ClassicUO.Configuration
 
                     foreach (XmlElement xml in root.ChildNodes /*.GetElementsByTagName("gump")*/)
                     {
+                        if (xml.Name == "window")
+                        {
+                            LoadWindow(xml);
+                            continue;
+                        }
+
                         if (xml.Name != "gump")
                         {
                             continue;
@@ -1235,6 +1277,30 @@ namespace ClassicUO.Configuration
             }
 
             return gumps;
+        }
+
+        private void LoadWindow(XmlElement xml)
+        {
+            string type = xml.GetAttribute("type");
+
+            if (string.IsNullOrEmpty(type)) return;
+
+            switch (type)
+            {
+                default:
+                    Log.Error($"No type setup in [Profile.cs] for {type}");
+                    break;
+                case "ClassicUO.Game.UI.ImGuiControls.ScriptManagerWindow":
+                    SingletonImGuiWindow<ScriptManagerWindow> w = ScriptManagerWindow.GetInstance();
+                    w.Load(xml);
+                    ImGuiManager.AddWindow(w);
+                    break;
+                case "ClassicUO.Game.UI.ImGuiControls.AssistantWindow":
+                    SingletonImGuiWindow<AssistantWindow> w2 = AssistantWindow.GetInstance();
+                    w2.Load(xml);
+                    ImGuiManager.AddWindow(w2);
+                    break;
+            }
         }
     }
 }

@@ -65,6 +65,10 @@ namespace ClassicUO.LegionScripting
             {
                 ScriptingInfoGump.Show();
             }));
+            refresh.ContextMenu.Add(new ContextMenuItemEntry("Persistent Variables", () =>
+            {
+                Game.UI.ImGuiControls.PersistentVarsWindow.Show();
+            }));
             refresh.ContextMenu.Add(new ContextMenuItemEntry("Disable Module Cache", () =>
             {
                 LegionScripting.LScriptSettings.DisableModuleCache = !LegionScripting.LScriptSettings.DisableModuleCache;
@@ -143,9 +147,10 @@ namespace ClassicUO.LegionScripting
             writer.WriteAttributeString("rw", Width.ToString());
             writer.WriteAttributeString("rh", Height.ToString());
         }
-        public override void SlowUpdate()
+
+        public override void PreDraw()
         {
-            base.SlowUpdate();
+            base.PreDraw();
             if (RefreshContent)
             {
                 RefreshContent = false;
@@ -533,7 +538,7 @@ while True:
                         Macro mac = new (script.FileName);
                         mac.Items = new MacroObjectString(MacroType.ClientCommand, MacroSubType.MSC_NONE, "togglelscript " + script.FileName);
                         mm.PushToBack(mac);
-                        
+
                         MacroButtonGump bg = new(World, mac, Mouse.Position.X, Mouse.Position.Y);
                         UIManager.Add(bg);
                     }

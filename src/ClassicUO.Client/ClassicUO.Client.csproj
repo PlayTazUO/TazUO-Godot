@@ -5,8 +5,8 @@
     <ApplicationIcon>cuoicon.ico</ApplicationIcon>
     <AssemblyName>TazUO</AssemblyName>
     <RootNamespace>ClassicUO</RootNamespace>
-    <AssemblyVersion>4.10.0</AssemblyVersion>
-    <FileVersion>4.10.0</FileVersion>
+    <AssemblyVersion>4.11.0</AssemblyVersion>
+    <FileVersion>4.11.0</FileVersion>
     <PackageProjectUrl>https://github.com/PlayTazUO/TazUO</PackageProjectUrl>
     <PublishAot>false</PublishAot>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -47,6 +47,7 @@
     <ProjectReference Include="..\ClassicUO.Renderer\ClassicUO.Renderer.csproj" />
     <ProjectReference Include="..\ClassicUO.Utility\ClassicUO.Utility.csproj" />
     <ProjectReference Include="..\ClassicUO.CUOAPI\ClassicUO.CUOAPI.csproj" />
+    <ProjectReference Include="..\..\tools\EventGenerator\EventGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>
@@ -99,6 +100,7 @@
   <ItemGroup>
     <PackageReference Include="IronPython" Version="3.4.2" />
     <PackageReference Include="ImGui.NET" Version="1.91.6.1" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.0" />
   </ItemGroup>
 
   <PropertyGroup>

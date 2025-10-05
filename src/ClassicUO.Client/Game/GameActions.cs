@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: BSD-2-Clause
+// SPDX-License-Identifier: BSD-2-Clause
 using System;
 using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
@@ -1058,22 +1058,24 @@ internal static class GameActions
         Socket.Send_RenameRequest(serial, name);
     }
 
-        public static void Logout(World world)
+    public static void Logout(World world)
+    {
+        if ((world.ClientFeatures.Flags & CharacterListFlags.CLF_OWERWRITE_CONFIGURATION_BUTTON) != 0)
         {
-            if ((world.ClientFeatures.Flags & CharacterListFlags.CLF_OWERWRITE_CONFIGURATION_BUTTON) != 0)
-            {
-                Client.Game.GetScene<GameScene>().DisconnectionRequested = true;
-                Socket.Send_LogoutNotification();
-            }
-            else
-            {
-                Client.Game.GetScene<GameScene>().DisconnectionRequested = true;
-                Client.Game.SetScene(new LoginScene(world));
-
-                Socket?.Disconnect();
-                Socket = new AsyncNetClient();
-            }
+            Client.Game.GetScene<GameScene>().DisconnectionRequested = true;
+            Socket.Send_LogoutNotification();
         }
+        else
+        {
+            Client.Game.GetScene<GameScene>().DisconnectionRequested = true;
+            Client.Game.SetScene(new LoginScene(world));
+
+            Socket?.Disconnect();
+            Socket = new AsyncNetClient();
+        }
+
+        WorldMapGump.ClearMapCache();
+    }
 
     internal static void UseSkill(int index)
     {
@@ -1227,7 +1229,7 @@ internal static class GameActions
             SendAbility(world, 0, true);
         }
 
-            ClassicUO.LegionScripting.ScriptRecorder.Instance.RecordAbility("secondary");
+        ClassicUO.LegionScripting.ScriptRecorder.Instance.RecordAbility("secondary");
 
         ability ^= (Ability)0x80;
     }
@@ -1290,14 +1292,31 @@ internal static class GameActions
                 );
         }
 
-        public static void RequestEquippedOPL(World world)
+    public static void RequestEquippedOPL(World world)
+    {
+        foreach (Layer layer in Enum.GetValues(typeof(Data.Layer)))
         {
-            foreach (Layer layer in Enum.GetValues(typeof(Data.Layer)))
-            {
-                Item item = world.Player.FindItemByLayer(layer);
-                if(item == null) continue;
+            Item item = world.Player.FindItemByLayer(layer);
+            if(item == null) continue;
 
-                world.OPL.Contains(item); //Requests data if we don't have it
-            }
+            world.OPL.Contains(item); //Requests data if we don't have it
         }
     }
+
+    internal static bool Mount()
+    {
+        if (World.Instance == null) return false;
+
+        if (ProfileManager.CurrentProfile.SavedMountSerial == 0) return false;
+
+        Entity mount = World.Instance.Get(ProfileManager.CurrentProfile.SavedMountSerial);
+        if (mount != null)
+        {
+            DoubleClickQueued(ProfileManager.CurrentProfile.SavedMountSerial);
+            ScriptRecorder.Instance.RecordMount(mount);
+            return true;
+        }
+
+        return false;
+    }
+}

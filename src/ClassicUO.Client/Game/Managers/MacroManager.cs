@@ -1091,31 +1091,34 @@ namespace ClassicUO.Game.Managers
                     break;
 
                 case MacroType.Mount:
-                    if (ProfileManager.CurrentProfile.SavedMountSerial != 0)
+                    if(!GameActions.Mount())
                     {
-                        Entity mount = _world.Get(ProfileManager.CurrentProfile.SavedMountSerial);
-                        if (mount != null)
-                        {
-                            GameActions.DoubleClickQueued(ProfileManager.CurrentProfile.SavedMountSerial);
-                            ClassicUO.LegionScripting.ScriptRecorder.Instance.RecordMount(mount);
-                        }
-                        else
-                        {
-                            GameActions.Print(_world, "Saved mount not found. Target a new mount.", 32);
-                            _world.TargetManager.SetTargeting(CursorTarget.SetMount, 0, TargetType.Neutral);
-                        }
-                    }
-                    else
-                    {
-                        GameActions.Print(_world, "No mount set. Target a mount to save it.", 48);
-                        _world.TargetManager.SetTargeting(CursorTarget.SetMount, 0, TargetType.Neutral);
-                        result = 1;
+                        GameActions.Print(_world, "Saved mount not found.", 32);
+                        goto case MacroType.SetMount;
                     }
                     break;
 
                 case MacroType.SetMount:
                     GameActions.Print(_world, "Target a mount to save it for the Mount macro.", 48);
                     _world.TargetManager.SetTargeting(CursorTarget.SetMount, 0, TargetType.Neutral);
+                    break;
+
+                case MacroType.ToggleMount:
+                    if (_world.Player.FindItemByLayer(Layer.Mount) != null)
+                    {
+                        // Player is mounted, dismount
+                        GameActions.DoubleClickQueued(_world.Player);
+                        ClassicUO.LegionScripting.ScriptRecorder.Instance.RecordDismount();
+                    }
+                    else
+                    {
+                        // Player is not mounted, try to mount
+                        if(!GameActions.Mount())
+                        {
+                            GameActions.Print(_world, "Saved mount not found.", 32);
+                            goto case MacroType.SetMount;
+                        }
+                    }
                     break;
 
                 case MacroType.AddFriend:
@@ -2038,6 +2041,18 @@ namespace ClassicUO.Game.Managers
                             gridLootGump.Dispose();
                         }
                     }
+
+                    // Close GridContainer corpses
+                    IEnumerable<GridContainer> gridContainerCorpses = UIManager.Gumps.OfType<GridContainer>().Where(gc =>
+                    {
+                        var item = _world.Items.Get(gc.LocalSerial);
+                        return item != null && item.IsCorpse;
+                    });
+
+                    foreach (var gridContainer in gridContainerCorpses)
+                    {
+                        gridContainer.Dispose();
+                    }
                     break;
 
                 case MacroType.ToggleDrawRoofs:
@@ -2744,6 +2759,7 @@ namespace ClassicUO.Game.Managers
         AddFriend,
         RemoveFriend,
         ToggleHotkeys,
+        ToggleMount,
     }
 
     public enum MacroSubType

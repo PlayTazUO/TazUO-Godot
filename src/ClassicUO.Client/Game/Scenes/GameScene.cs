@@ -146,7 +146,7 @@ namespace ClassicUO.Game.Scenes
             _currentFilter = null;
             _postFx = null;
         }
-        private long _nextProfileSave;
+        private long _nextProfileSave = Time.Ticks + 1000*60*60;
 
         public MoveItemQueue MoveItemQueue => _moveItemQueue;
         public bool UpdateDrawPosition { get; set; }
@@ -201,6 +201,7 @@ namespace ClassicUO.Game.Scenes
             _healthLinesManager = new HealthLinesManager(_world);
 
             _world.CommandManager.Initialize();
+            ItemDatabaseManager.Instance.Initialize();
 
             WorldViewportGump viewport = new WorldViewportGump(_world, this);
             UIManager.Add(viewport, false);
@@ -222,7 +223,6 @@ namespace ClassicUO.Game.Scenes
             AutoLootManager.Instance.OnSceneLoad();
             DressAgentManager.Instance.Load();
             FriendsListManager.Instance.OnSceneLoad();
-            var _ = BandageManager.Instance;
 
             foreach (var xml in ProfileManager.CurrentProfile.AutoOpenXmlGumps)
             {
@@ -386,13 +386,13 @@ namespace ClassicUO.Game.Scenes
 
             Instance = null;
 
-            Game.UI.ImGuiManager.Dispose();
             GridContainerSaveData.Instance.Save();
             GridContainerSaveData.Reset();
             JournalFilterManager.Instance.Save();
 
             SpellBarManager.Unload();
             _moveItemQueue.Clear();
+            GlobalPriorityQueue.Instance.Clear();
 
             GraphicsReplacement.Save();
             BuySellAgent.Unload();
@@ -400,6 +400,7 @@ namespace ClassicUO.Game.Scenes
 
             PersistentVars.Unload();
             LegionScripting.LegionScripting.Unload();
+            BandageManager.Instance.Value.Dispose();
 
             ProfileManager.CurrentProfile.GameWindowPosition = new Point(
                 Camera.Bounds.X,
@@ -431,6 +432,7 @@ namespace ClassicUO.Game.Scenes
             UIManager.GetGump<WorldMapGump>()?.SaveSettings();
 
             ProfileManager.CurrentProfile?.Save(_world, ProfileManager.ProfilePath);
+            ImGuiManager.Dispose();
             TileMarkerManager.Instance.Save();
             SpellVisualRangeManager.Instance.Save();
             SpellVisualRangeManager.Instance.OnSceneUnload();
@@ -462,6 +464,7 @@ namespace ClassicUO.Game.Scenes
             _world.DelayedObjectClickManager.Clear();
 
             _useItemQueue?.Clear();
+            GlobalPriorityQueue.Instance.Clear();
             EventSink.MessageReceived -= ChatOnMessageReceived;
 
             Settings.GlobalSettings.WindowSize = new Point(
@@ -899,6 +902,9 @@ namespace ClassicUO.Game.Scenes
             {
                 _useItemQueue.ClearCorpses();
             }
+
+            // Process priority queue first (for bandages and other high-priority actions)
+            GlobalPriorityQueue.Instance.Update();
 
             _useItemQueue.Update();
 

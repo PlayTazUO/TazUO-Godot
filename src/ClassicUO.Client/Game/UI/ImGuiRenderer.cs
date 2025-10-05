@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using ClassicUO;
 using ClassicUO.Game.UI;
 using ClassicUO.Game.UI.Gumps;
 using SDL3;
@@ -67,6 +68,11 @@ namespace ImGuiNET.SampleProgram.XNA
         }
 
         #region ImGuiRenderer
+
+        public void Dispose()
+        {
+            TextInputEXT.TextInput -= TextInput;
+        }
 
         /// <summary>
         /// Creates a texture and loads the font data from ImGui. Should be called when the <see cref="GraphicsDevice" /> is initialized but before any rendering is done
@@ -156,13 +162,15 @@ namespace ImGuiNET.SampleProgram.XNA
             var io = ImGui.GetIO();
 
             // FNA-specific ///////////////////////////
-            TextInputEXT.TextInput += c =>
-            {
-                if (c == '\t') return;
-
-                ImGui.GetIO().AddInputCharacter(c);
-            };
+            TextInputEXT.TextInput += TextInput;
             ///////////////////////////////////////////
+        }
+
+        private void TextInput(char c)
+        {
+            if (c == '\t') return;
+
+            ImGui.GetIO().AddInputCharacter(c);
         }
 
         /// <summary>
@@ -189,6 +197,8 @@ namespace ImGuiNET.SampleProgram.XNA
         /// </summary>
         protected virtual void UpdateInput()
         {
+            if(!Client.Game.IsActive) return;
+            
             var io = ImGui.GetIO();
 
             var mouse = Mouse.GetState();

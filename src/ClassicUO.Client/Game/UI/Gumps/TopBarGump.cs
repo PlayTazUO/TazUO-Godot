@@ -13,6 +13,7 @@ using ClassicUO.Utility.Logging;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using ClassicUO.Game.UI.Gumps.SpellBar;
+using ClassicUO.Game.UI.ImGuiControls;
 
 namespace ClassicUO.Game.UI.Gumps
 {
@@ -146,7 +147,7 @@ namespace ClassicUO.Game.UI.Gumps
                 Y = 1,
                 FontCenter = true
             }, 1);
-            assistant.MouseUp += (s, e) => { UIManager.Add(new AssistantGump(world)); };
+            assistant.MouseUp += (s, e) => { AssistantWindow.Show(); };
             startX += largeWidth + 1;
 
             RighClickableButton lscript;
@@ -166,7 +167,10 @@ namespace ClassicUO.Game.UI.Gumps
                 Y = 1,
                 FontCenter = true
             }, 1);
-            lscript.MouseUp += (s, e) => { UIManager.Add(new LegionScripting.ScriptManagerGump()); };
+            lscript.MouseUp += (s, e) => {
+                UIManager.Add(new LegionScripting.ScriptManagerGump());
+                ScriptManagerWindow.Show();
+            };
             startX += largeWidth + 1;
 
             RighClickableButton moreMenu;
