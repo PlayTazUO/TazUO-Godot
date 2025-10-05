@@ -11,6 +11,8 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading;
 using ClassicUO.Utility.Logging;
+using Microsoft.Xna.Framework;
+using ClassicUO.Game.UI.Gumps.GridHighLight;
 
 namespace ClassicUO.Game.Managers
 {
@@ -255,36 +257,23 @@ namespace ClassicUO.Game.Managers
             }
         }
 
-        public static string ProcessTooltipText(World world, uint serial, uint compareTo = uint.MinValue)
+        private static string BuildTooltip(ItemPropertiesData itemPropertiesData, uint compareTo = uint.MinValue)
         {
-            string tooltip = "";
-            ItemPropertiesData itemPropertiesData;
-
-            if (compareTo != uint.MinValue)
-                itemPropertiesData = new ItemPropertiesData(world, world.Items.Get(serial), world.Items.Get(compareTo));
-            else
-                itemPropertiesData = new ItemPropertiesData(world, world.Items.Get(serial));
-
             if (!itemPropertiesData.HasData)
                 return null;
 
-            ToolTipOverrideData[] result = GetAllToolTipOverrides();
+            var sb = new StringBuilder();
+            ToolTipOverrideData[] toolTipOverrides = GetAllToolTipOverrides();
 
-
-            // --------------------------------
-            // Apply header override (item name)
-            // --------------------------------
             bool headerHandled = false;
-
-            foreach (var overrideData in FilteredOverrides(result, itemPropertiesData.item.ItemData.Layer))
+            foreach (var overrideData in FilteredOverrides(toolTipOverrides, itemPropertiesData.item?.ItemData.Layer ?? 0))
             {
                 if (MatchItemName(itemPropertiesData.Name, overrideData.SearchText))
                 {
-                    tooltip += string.Format(
+                    sb.AppendLine(string.Format(
                         overrideData.FormattedText,
                         itemPropertiesData.Name, "", "", "", "", ""
-                    ) + "\n";
-
+                    ));
                     headerHandled = true;
                     break;
                 }
@@ -292,112 +281,118 @@ namespace ClassicUO.Game.Managers
 
             if (!headerHandled)
             {
-                tooltip += ProfileManager.CurrentProfile == null
-                    ? $"/c[yellow]{itemPropertiesData.Name}\n"
-                    : string.Format(ProfileManager.CurrentProfile.TooltipHeaderFormat + "\n", itemPropertiesData.Name);
+                sb.AppendLine(
+                    ProfileManager.CurrentProfile == null
+                        ? $"/c[yellow]{itemPropertiesData.Name}"
+                        : string.Format(ProfileManager.CurrentProfile.TooltipHeaderFormat, itemPropertiesData.Name)
+                );
             }
 
-            // --------------------------
-            // Apply property line overrides
-            // --------------------------
+            var bestGridHighlightData = ProfileManager.CurrentProfile.GridHighlightProperties ? GridHighlightData.GetBestMatch(itemPropertiesData) : null;
+
             foreach (var property in itemPropertiesData.singlePropertyData)
             {
-                bool handled = false;
+                string cleanText = StripColorCodes(property.OriginalString);
 
-                foreach (var overrideData in FilteredOverrides(result, itemPropertiesData.item.ItemData.Layer))
+                // Find if this property is highlighted
+                bool isHighlighted = bestGridHighlightData != null && bestGridHighlightData.DoesPropertyMatch(property);
+
+                // Try to find an override
+                ToolTipOverrideData matchedOverride = null;
+                if (toolTipOverrides != null)
                 {
-                    // Skip name-based overrides — they should never apply to properties
-                    if (!MatchPropertyName(world, property.OriginalString, overrideData.SearchText))
-                        continue;
-
-                    // Check value bounds
-                    if ((property.FirstValue == double.MinValue || (property.FirstValue >= overrideData.Min1 && property.FirstValue <= overrideData.Max1)) &&
-                        (property.SecondValue == double.MinValue || (property.SecondValue >= overrideData.Min2 && property.SecondValue <= overrideData.Max2)))
+                    foreach (var overrideData in FilteredOverrides(toolTipOverrides, itemPropertiesData.item?.ItemData.Layer ?? 0))
                     {
-                        try
-                        {
-                            tooltip += (compareTo != uint.MinValue)
-                                ? string.Format(
-                                    overrideData.FormattedText,
-                                    property.Name,
-                                    property.FirstValue.ToString(),
-                                    property.SecondValue.ToString(),
-                                    property.OriginalString,
-                                    property.FirstDiff != 0 ? $"({property.FirstDiff})" : "",
-                                    property.SecondDiff != 0 ? $"({property.SecondDiff})" : ""
-                                )
-                                : string.Format(
-                                    overrideData.FormattedText,
-                                    property.Name,
-                                    property.FirstValue.ToString(),
-                                    property.SecondValue.ToString(),
-                                    property.OriginalString, "", ""
-                                );
+                        if (!MatchPropertyName(World.Instance, property.OriginalString, overrideData.SearchText))
+                            continue;
 
-                            tooltip += "\n";
-                            handled = true;
-                            break;
-                        }
-                        catch (FormatException e)
+                        if ((property.FirstValue == double.MinValue || (property.FirstValue >= overrideData.Min1 && property.FirstValue <= overrideData.Max1)) &&
+                            (property.SecondValue == double.MinValue || (property.SecondValue >= overrideData.Min2 && property.SecondValue <= overrideData.Max2)))
                         {
-                            GameActions.Print(World.Instance, $"Invalid format string in tooltip override: {overrideData.FormattedText}", 32);
+                            matchedOverride = overrideData;
+                            break;
                         }
                     }
                 }
 
-                if (!handled)
+                string finalLine;
+
+                // 1. If override exists, format it
+                if (matchedOverride != null)
                 {
-                    tooltip += property.OriginalString + "\n";
+                    try
+                    {
+                        if (compareTo != uint.MinValue)
+                        {
+                            finalLine = string.Format(
+                                matchedOverride.FormattedText,
+                                property.Name,
+                                property.FirstValue.ToString(),
+                                property.SecondValue.ToString(),
+                                property.OriginalString,
+                                property.FirstDiff != 0 ? $"({property.FirstDiff})" : "",
+                                property.SecondDiff != 0 ? $"({property.SecondDiff})" : ""
+                            );
+                        }
+                        else
+                        {
+                            finalLine = string.Format(
+                                matchedOverride.FormattedText,
+                                property.Name,
+                                property.FirstValue.ToString(),
+                                property.SecondValue.ToString(),
+                                property.OriginalString, "", ""
+                            );
+                        }
+                    }
+                    catch
+                    {
+                        GameActions.Print(World.Instance, $"Invalid format string in tooltip override: {matchedOverride.FormattedText}", 32);
+                        finalLine = cleanText;
+                    }
                 }
+                else
+                {
+                    // 2. No override → fallback to original text
+                    finalLine = cleanText;
+                }
+
+                if (isHighlighted)
+                {
+                    finalLine = $"[o] {finalLine}/cd";
+                }
+
+                sb.AppendLine(finalLine);
             }
 
-            return tooltip;
+            if (ProfileManager.CurrentProfile.GridHighlightShowRuleName && bestGridHighlightData != null && !string.IsNullOrEmpty(bestGridHighlightData.Name))
+            {
+                sb.AppendLine($"/c[gray]Matched Rule: {bestGridHighlightData.Name}/cd");
+            }
+
+            return sb.ToString();
+        }
+
+        private static string StripColorCodes(string input)
+        {
+            if (string.IsNullOrEmpty(input)) return input;
+            return Regex.Replace(input, @"\/c\[[^\]]*\]|\/cd", string.Empty, RegexOptions.IgnoreCase);
+        }
+
+        public static string ProcessTooltipText(World world, uint serial, uint compareTo = uint.MinValue)
+        {
+            ItemPropertiesData itemPropertiesData =
+                compareTo != uint.MinValue
+                ? new ItemPropertiesData(world, world.Items.Get(serial), world.Items.Get(compareTo))
+                : new ItemPropertiesData(world, world.Items.Get(serial));
+
+            return BuildTooltip(itemPropertiesData, compareTo);
         }
 
         public static string ProcessTooltipText(string text)
         {
-            string tooltip = "";
-
             ItemPropertiesData itemPropertiesData = new ItemPropertiesData(text);
-
-            ToolTipOverrideData[] result = GetAllToolTipOverrides();
-
-            if (itemPropertiesData.HasData && result != null && result.Length > 0)
-            {
-                tooltip += ProfileManager.CurrentProfile == null ? $"/c[yellow]{itemPropertiesData.Name}\n" : string.Format(ProfileManager.CurrentProfile.TooltipHeaderFormat + "\n", itemPropertiesData.Name);
-
-                //Loop through each property
-                foreach (ItemPropertiesData.SinglePropertyData property in itemPropertiesData.singlePropertyData)
-                {
-                    bool handled = false;
-                    //Loop though each override setting player created
-                    foreach (ToolTipOverrideData overrideData in result)
-                    {
-                        if (overrideData != null)
-                            if (overrideData.ItemLayer == TooltipLayers.Any)
-                            {
-                                if (property.OriginalString.ToLower().Contains(overrideData.SearchText.ToLower()))
-                                    if (property.FirstValue == double.MinValue || (property.FirstValue >= overrideData.Min1 && property.FirstValue <= overrideData.Max1))
-                                        if (property.SecondValue == double.MinValue || (property.SecondValue >= overrideData.Min2 && property.SecondValue <= overrideData.Max2))
-                                        {
-                                            try
-                                            {
-                                                tooltip += string.Format(overrideData.FormattedText, property.Name, property.FirstValue.ToString(), property.SecondValue.ToString()) + "\n";
-                                                handled = true;
-                                                break;
-                                            }
-                                            catch { }
-                                        }
-                            }
-                    }
-                    if (!handled) //Did not find a matching override, need to add the plain tooltip line still
-                        tooltip += $"{property.OriginalString}\n";
-
-                }
-
-                return tooltip;
-            }
-            return null;
+            return BuildTooltip(itemPropertiesData);
         }
 
         private static bool CheckLayers(TooltipLayers overrideLayer, byte itemLayer)

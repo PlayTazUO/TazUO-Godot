@@ -12,7 +12,7 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
 {
     internal class GridHighlightMenu : NineSliceGump
     {
-        private const int WIDTH = 370, HEIGHT = 500;
+        private const int WIDTH = 420, HEIGHT = 500;
         private SettingsSection highlightSection;
         private ScrollArea highlightSectionScroll;
 
@@ -36,7 +36,7 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             Clear();
             int y = 0;
             {
-                SettingsSection section = new SettingsSection("Grid highlighting settings", Width - (BorderSize*2));
+                SettingsSection section = new SettingsSection("Grid highlighting settings", Width - (BorderSize * 2));
                 section.X = BorderSize;
                 section.Y = BorderSize;
                 section.Add(new Label("You can add object properties that you would like the grid to be highlighted for here.", true, 0xffff, section.Width - 15));
@@ -109,7 +109,7 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             int spaceBetween = 7;
 
             NiceButton colorButton;
-            area.Add(colorButton = new NiceButton(0, y, 60, 20, ButtonAction.Activate, "Color") { IsSelectable = false });
+            area.Add(colorButton = new NiceButton(0, y, 60, 20, ButtonAction.Activate, "Color") { BackgroundColor = data.HighlightColor, IsSelectable = false });
             colorButton.SetTooltip("Select grid highlight color");
             colorButton.MouseUp += (s, e) =>
             {
@@ -119,21 +119,22 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
                     {
                         data.HighlightColor = selectedColor;
                         data.Hue = (ushort)(selectedColor.R + (selectedColor.G << 8) + (selectedColor.B << 16));
+                        colorButton.BackgroundColor = selectedColor;
                         GridHighlightData.RecheckMatchStatus(); //Request new opl data and re-check item matches
                     });
                 }
             };
 
-            NiceButton  _propertiesButton;
-            area.Add( _propertiesButton = new NiceButton(0, y, 60, 20, ButtonAction.Activate, "Properties") { IsSelectable = false });
-             _propertiesButton.MouseUp += (s, e) =>
-            {
-                if (e.Button == Input.MouseButtonType.Left)
-                {
-                    UIManager.GetGump<GridHighlightProperties>()?.Dispose();
-                    UIManager.Add(new GridHighlightProperties(World, keyLoc, 100, 100));
-                }
-            };
+            NiceButton _propertiesButton;
+            area.Add(_propertiesButton = new NiceButton(0, y, 60, 20, ButtonAction.Activate, "Properties") { IsSelectable = false });
+            _propertiesButton.MouseUp += (s, e) =>
+           {
+               if (e.Button == Input.MouseButtonType.Left)
+               {
+                   UIManager.GetGump<GridHighlightProperties>()?.Dispose();
+                   UIManager.Add(new GridHighlightProperties(World, keyLoc, 100, 100));
+               }
+           };
 
             NiceButton _del;
             area.Add(_del = new NiceButton(0, y, 20, 20, ButtonAction.Activate, "X") { IsSelectable = false });
@@ -175,17 +176,17 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
             };
 
             pos.PositionLeftOf(_moveUp, _moveDown);
-            pos.PositionLeftOf( _del, _moveUp);
-            pos.PositionLeftOf( _propertiesButton, _del);
-            pos.PositionLeftOf(colorButton,  _propertiesButton);
+            pos.PositionLeftOf(_del, _moveUp);
+            pos.PositionLeftOf(_propertiesButton, _del);
+            pos.PositionLeftOf(colorButton, _propertiesButton);
 
             InputField _name;
             area.Add(_name = new InputField(0x0BB8, 0xFF, 0xFFFF, true, colorButton.X - spaceBetween, 20)
-                {
-                    X = 0,
-                    Y = y,
-                    AcceptKeyboardInput = true
-                }
+            {
+                X = 0,
+                Y = y,
+                AcceptKeyboardInput = true
+            }
             );
             _name.SetText(data.Name);
             _name.TextChanged += (s, e) => data.Name = _name.Text;
@@ -241,7 +242,7 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
                     var imported = JsonSerializer.Deserialize<List<GridHighlightSetupEntry>>(json);
                     if (imported != null)
                     {
-                        ProfileManager.CurrentProfile.GridHighlightSetup.AddRange(imported);;
+                        ProfileManager.CurrentProfile.GridHighlightSetup.AddRange(imported);
                         SaveProfile();
                         UIManager.GetGump<GridHighlightMenu>()?.Dispose();
                         UIManager.Add(new GridHighlightMenu(world));
