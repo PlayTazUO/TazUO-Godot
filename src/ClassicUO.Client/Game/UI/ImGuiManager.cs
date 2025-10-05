@@ -63,6 +63,7 @@ namespace ClassicUO.Game.UI
                     window?.Dispose();
                 }
                 _windows.Clear();
+                _hasWindows = _windows.Count > 0;
             }
         }
 
