@@ -12,14 +12,19 @@ namespace ClassicUO.Game.GameObjects
 {
     public sealed partial class Land
     {
+        private const float LAND_DEPTH_OFFSET = 0.5f;
+        private const int Z_TO_PIXEL_MULTIPLIER = 4;
+
+        private static float _cachedWaterSin;
+        private static float _cachedWaterCos;
+        private static uint _lastWaterAnimTicks;
+
         public override bool Draw(UltimaBatcher2D batcher, int posX, int posY, float depth)
         {
             if (!AllowedToDraw || IsDestroyed)
             {
                 return false;
             }
-
-            //Engine.DebugInfo.LandsRendered++;
 
             ushort hue = Hue;
             bool isSelected = SelectedObject.Object == this;
@@ -35,7 +40,7 @@ namespace ClassicUO.Game.GameObjects
             {
                 hue = Constants.OUT_RANGE_COLOR;
             }
-            else if (World.Player.IsDead && _profile.EnableBlackWhiteEffect)
+            else if (World.Player != null && World.Player.IsDead && _profile.EnableBlackWhiteEffect)
             {
                 hue = Constants.DEAD_RANGE_COLOR;
             }
@@ -51,10 +56,14 @@ namespace ClassicUO.Game.GameObjects
             }
 
             if (_profile.DisplayRadius && Distance == _profile.DisplayRadiusDistance)
+            {
                 hue = _profile.DisplayRadiusHue;
+            }
 
 
             Vector3 hueVec;
+            hueVec.Z = 1f;
+
             if (hue != 0)
             {
                 hueVec.X = hue - 1;
@@ -69,11 +78,10 @@ namespace ClassicUO.Game.GameObjects
                     ? ShaderHueTranslator.SHADER_LAND
                     : ShaderHueTranslator.SHADER_NONE;
             }
-            hueVec.Z = 1f;
 
             if (IsStretched)
             {
-                posY += Z << 2;
+                posY += Z * Z_TO_PIXEL_MULTIPLIER;
 
                 ref readonly var texmapInfo = ref Client.Game.UO.Texmaps.GetTexmap(
                     Client.Game.UO.FileManager.TileData.LandData[Graphic].TexID
@@ -91,7 +99,7 @@ namespace ClassicUO.Game.GameObjects
                         ref NormalLeft,
                         ref NormalBottom,
                         hueVec,
-                        depth + 0.5f
+                        depth + LAND_DEPTH_OFFSET
                     );
                 }
                 else
@@ -111,10 +119,6 @@ namespace ClassicUO.Game.GameObjects
             {
                 ref readonly var artInfo = ref Client.Game.UO.Arts.GetLand(Graphic);
 
-                // ref readonly var texmapInfo = ref Client.Game.UO.Texmaps.GetTexmap(
-                //     Client.Game.UO.FileManager.TileData.LandData[Graphic].TexID
-                // );
-
                 if (artInfo.Texture != null)
                 {
                     var pos = new Vector2(posX, posY);
@@ -122,6 +126,7 @@ namespace ClassicUO.Game.GameObjects
 
                     if (_profile.AnimatedWaterEffect && TileData.IsWet)
                     {
+                        // Draw base water layer for depth effect
                         batcher.Draw(
                             artInfo.Texture,
                             pos,
@@ -131,14 +136,22 @@ namespace ClassicUO.Game.GameObjects
                             Vector2.Zero,
                             scale,
                             SpriteEffects.None,
-                            depth + 0.5f
+                            depth + LAND_DEPTH_OFFSET
                         );
 
-                        var sin = (float)Math.Sin(Time.Ticks / 1000f);
-                        var cos = (float)Math.Cos(Time.Ticks / 1000f);
-                        scale = new Vector2(1.1f + sin * 0.1f, 1.1f + cos * 0.5f * 0.1f);
+                        // Cache trig calculations per frame to avoid repeated expensive operations
+                        if (_lastWaterAnimTicks != Time.Ticks)
+                        {
+                            _lastWaterAnimTicks = Time.Ticks;
+                            _cachedWaterSin = (float)Math.Sin(Time.Ticks / 1000f);
+                            _cachedWaterCos = (float)Math.Cos(Time.Ticks / 1000f);
+                        }
+
+                        // Calculate animated scale for water surface layer
+                        scale = new Vector2(1.1f + _cachedWaterSin * 0.1f, 1.1f + _cachedWaterCos * 0.5f * 0.1f);
                     }
 
+                    // Draw land tile (or animated water surface layer)
                     batcher.Draw(
                         artInfo.Texture,
                         pos,
@@ -148,7 +161,7 @@ namespace ClassicUO.Game.GameObjects
                         Vector2.Zero,
                         scale,
                         SpriteEffects.None,
-                        depth + 0.5f
+                        depth + LAND_DEPTH_OFFSET
                     );
 
                 }
@@ -164,7 +177,7 @@ namespace ClassicUO.Game.GameObjects
                 return SelectedObject.IsPointInStretchedLand(
                     ref YOffsets,
                     RealScreenPosition.X,
-                    RealScreenPosition.Y + (Z << 2)
+                    RealScreenPosition.Y + (Z * Z_TO_PIXEL_MULTIPLIER)
                 );
             }
 
