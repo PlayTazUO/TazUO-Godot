@@ -16,12 +16,10 @@ namespace ClassicUO.Game.GameObjects
     public partial class Mobile
     {
         private const int SIT_OFFSET_Y = 4;
-        private static EquipConvData? _equipConvData;
-        private static int _characterFrameStartY;
-        private static int _startCharacterWaistY;
-        private static int _startCharacterKneesY;
-        private static int _startCharacterFeetY;
-        private static int _characterFrameHeight;
+        private EquipConvData? _equipConvData;
+        private int _characterFrameStartY;
+        private int _startCharacterWaistY;
+        private int _startCharacterKneesY;
 
         public override bool Draw(UltimaBatcher2D batcher, int posX, int posY, float depth)
         {
@@ -31,9 +29,8 @@ namespace ClassicUO.Game.GameObjects
             }
 
             var profile = _profile;
-            var player = World.Player;
-            var targetManager = World.TargetManager;
             var auraManager = World.AuraManager;
+            int clientViewRange = World.ClientViewRange;
 
             bool charSitting = false;
             ushort overridenHue = 0;
@@ -85,12 +82,12 @@ namespace ClassicUO.Game.GameObjects
             {
                 overridenHue = Notoriety.GetHue(NotorietyFlag);
             }
-            else if (profile.NoColorObjectsOutOfRange && Distance > World.ClientViewRange)
+            else if (profile.NoColorObjectsOutOfRange && Distance > clientViewRange)
             {
                 overridenHue = Constants.OUT_RANGE_COLOR;
                 hueVec.Y = 1;
             }
-            else if (player.IsDead && profile.EnableBlackWhiteEffect)
+            else if (World.Player.IsDead && profile.EnableBlackWhiteEffect)
             {
                 overridenHue = Constants.DEAD_RANGE_COLOR;
                 hueVec.Y = 1;
@@ -128,6 +125,7 @@ namespace ClassicUO.Game.GameObjects
 
             if (!isPlayer)
             {
+                var targetManager = World.TargetManager;
                 if ((targetManager.IsTargeting && isSelected) || (Serial == targetManager.LastAttack && !profile.DisableGrayEnemies))
                     overridenHue = Notoriety.GetHue(NotorietyFlag);
                 else if (inParty && profile.OverridePartyAndGuildHue)
@@ -146,8 +144,11 @@ namespace ClassicUO.Game.GameObjects
             Item mount = Mount;
             if (mount != null)
             {
-                if (World.Items.Get(mount.Serial) == null) //Double check mount exists. Still a performance increase for non-mounted mobiles.
-                    mount = Mount = null;
+                // Validate mount still exists - don't modify state during rendering
+                if (World.Items.Get(mount.Serial) == null)
+                {
+                    mount = null;
+                }
             }
 
             sbyte mountOffsetY = 0;
@@ -166,6 +167,9 @@ namespace ClassicUO.Game.GameObjects
                     {
                         mountOffsetY = mountInfo.OffsetY;
                     }
+
+                    // Calculate animation group once
+                    animGroupMount = GetGroupForAnimation(this, mountGraphic);
 
                     if (hasShadow)
                     {
@@ -192,8 +196,6 @@ namespace ClassicUO.Game.GameObjects
                             charSitting
                         );
 
-                        animGroupMount = GetGroupForAnimation(this, mountGraphic);
-
                         DrawInternal(
                             batcher,
                             this,
@@ -216,10 +218,6 @@ namespace ClassicUO.Game.GameObjects
                             overridenHue,
                             charSitting
                         );
-                    }
-                    else
-                    {
-                        animGroupMount = GetGroupForAnimation(this, mountGraphic);
                     }
 
                     DrawInternal(
@@ -341,6 +339,10 @@ namespace ClassicUO.Game.GameObjects
             Profiler.EnterContext("SECTION 5");
             if (!IsEmpty)
             {
+                // Cache profile properties for hot loop
+                bool hiddenLayersEnabled = profile.HiddenLayersEnabled;
+                bool hideLayersForSelf = profile.HideLayersForSelf;
+
                 for (int i = 0; i < Constants.USED_LAYER_COUNT; i++)
                 {
                     Layer layer = LayerOrder.UsedLayers[layerDir, i];
@@ -362,7 +364,7 @@ namespace ClassicUO.Game.GameObjects
                     if (isHuman)
                     {
                         Profiler.EnterContext("HIDDEN LAYERS");
-                        if (_profile.HiddenLayersEnabled && _profile.HiddenLayers.Contains((int)layer) && ((_profile.HideLayersForSelf && IsPlayer) || !_profile.HideLayersForSelf))
+                        if (hiddenLayersEnabled && profile.HiddenLayers.Contains((int)layer) && ((hideLayersForSelf && IsPlayer) || !hideLayersForSelf))
                         {
                             continue;
                         }
@@ -459,7 +461,7 @@ namespace ClassicUO.Game.GameObjects
             return true;
         }
 
-        private static ushort GetAnimationInfo(Mobile owner, Item item, bool isGargoyle)
+        private ushort GetAnimationInfo(Item item, bool isGargoyle)
         {
             if (item.ItemData.AnimID != 0)
             {
@@ -472,7 +474,7 @@ namespace ClassicUO.Game.GameObjects
 
                 if (
                     Client.Game.UO.FileManager.Animations.EquipConversions.TryGetValue(
-                        owner.Graphic,
+                        Graphic,
                         out Dictionary<ushort, EquipConvData> map
                     )
                 )
@@ -674,26 +676,27 @@ namespace ClassicUO.Game.GameObjects
 
             if (spriteInfo.Texture == null)
             {
+                // Only continue for sitting characters without entity and no shadow
                 if (!(charIsSitting && entity == null && !hasShadow))
                 {
                     return;
                 }
-
-                goto SKIP;
-            }
-
-            if (mirror)
-            {
-                x -= spriteInfo.UV.Width - spriteInfo.Center.X;
+                // Skip position calculations, go directly to shadow check
             }
             else
             {
-                x -= spriteInfo.Center.X;
+                // Position calculations only when texture exists
+                if (mirror)
+                {
+                    x -= spriteInfo.UV.Width - spriteInfo.Center.X;
+                }
+                else
+                {
+                    x -= spriteInfo.Center.X;
+                }
+
+                y -= spriteInfo.UV.Height + spriteInfo.Center.Y;
             }
-
-            y -= spriteInfo.UV.Height + spriteInfo.Center.Y;
-
-            SKIP:
 
             if (hasShadow)
             {
@@ -725,9 +728,9 @@ namespace ClassicUO.Game.GameObjects
                     {
                         hue = hueFromFile;
 
-                        if (hue == 0 && _equipConvData.HasValue)
+                        if (hue == 0 && owner._equipConvData is EquipConvData equipData)
                         {
-                            hue = _equipConvData.Value.Color;
+                            hue = equipData.Color;
                         }
 
                         partialHue = false;
@@ -743,7 +746,7 @@ namespace ClassicUO.Game.GameObjects
 
                     if (charIsSitting)
                     {
-                        Vector3 mod = CalculateSitAnimation(y, entity, isHuman, ref spriteInfo);
+                        Vector3 mod = owner.CalculateSitAnimation(y, entity, isHuman, ref spriteInfo);
 
                         batcher.DrawCharacterSitted(
                             spriteInfo.Texture,
@@ -765,7 +768,7 @@ namespace ClassicUO.Game.GameObjects
                         rect.Height = Math.Min(value, rect.Height);
                         int remains = spriteInfo.UV.Height - rect.Height;
 
-                        int tiles = (byte)owner.Direction % 2 == 0 ? 2 : 2;
+                        const int tiles = 2;
 
                         for (int i = 0; i < count; ++i)
                         {
@@ -824,7 +827,7 @@ namespace ClassicUO.Game.GameObjects
             }
         }
 
-        private static Vector3 CalculateSitAnimation(
+        private Vector3 CalculateSitAnimation(
             int y,
             Item entity,
             bool isHuman,
@@ -845,14 +848,9 @@ namespace ClassicUO.Game.GameObjects
                     frameHeight = 61;
                 }
 
-                _characterFrameStartY =
-                    y - (spriteInfo.Texture != null ? 0 : frameHeight - SIT_OFFSET_Y);
-                _characterFrameHeight = frameHeight;
-                _startCharacterWaistY =
-                    (int)(frameHeight * UPPER_BODY_RATIO) + _characterFrameStartY;
+                _characterFrameStartY = y - (spriteInfo.Texture != null ? 0 : frameHeight - SIT_OFFSET_Y);
+                _startCharacterWaistY = (int)(frameHeight * UPPER_BODY_RATIO) + _characterFrameStartY;
                 _startCharacterKneesY = (int)(frameHeight * MID_BODY_RATIO) + _characterFrameStartY;
-                _startCharacterFeetY =
-                    (int)(frameHeight * LOWER_BODY_RATIO) + _characterFrameStartY;
 
                 if (spriteInfo.Texture == null)
                 {
@@ -967,6 +965,7 @@ namespace ClassicUO.Game.GameObjects
             var animations = Client.Game.UO.Animations;
 
             ProcessSteps(out byte dir);
+            byte layerDir = dir;
             bool isFlipped = IsFlipped;
             animations.GetAnimDirection(ref dir, ref isFlipped);
 
@@ -1068,8 +1067,9 @@ namespace ClassicUO.Game.GameObjects
 
             if (!IsEmpty && isHuman)
             {
-                for (Layer layer = Layer.Invalid + 1; layer < Layer.Mount; ++layer)
+                for (int i = 0; i < Constants.USED_LAYER_COUNT; i++)
                 {
+                    Layer layer = LayerOrder.UsedLayers[layerDir, i];
                     Item item = FindItemByLayer(layer);
 
                     if (
@@ -1081,7 +1081,7 @@ namespace ClassicUO.Game.GameObjects
                         continue;
                     }
 
-                    graphic = GetAnimationInfo(this, item, isGargoyle);
+                    graphic = GetAnimationInfo(item, isGargoyle);
 
                     if (graphic != 0xFFFF)
                     {
@@ -1217,9 +1217,6 @@ namespace ClassicUO.Game.GameObjects
                     robe = mobile.FindItemByLayer(Layer.Robe);
                     Item tunic = mobile.FindItemByLayer(Layer.Tunic);
 
-                    /*if (robe != null && robe.Graphic != 0)
-                        return true;
-                    else*/
                     if (tunic != null && tunic.Graphic == 0x0238)
                     {
                         return robe != null
@@ -1308,11 +1305,6 @@ namespace ClassicUO.Game.GameObjects
                     }
 
                     break;
-
-                    /*case Layer.Skirt:
-                        skirt = mobile.FindItemByLayer( Layer.Skirt];
-
-                        break;*/
             }
 
             return false;
