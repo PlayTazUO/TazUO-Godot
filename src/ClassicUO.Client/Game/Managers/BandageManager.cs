@@ -1,9 +1,7 @@
 using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
-using ClassicUO.Game.Managers;
 using ClassicUO.Network;
-using ClassicUO.Utility;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -13,7 +11,16 @@ namespace ClassicUO.Game.Managers
 {
     internal class BandageManager : IDisposable
     {
-        public static Lazy<BandageManager> Instance { get; private set; } = new(() => new BandageManager());
+        public static BandageManager Instance
+        {
+            get
+            {
+                if (field == null)
+                    field = new();
+                return field;
+            }
+            private set => field = value;
+        }
 
         private long _nextBandageTime = 0;
         private readonly LinkedList<uint> _pendingHeals = new();
@@ -236,7 +243,7 @@ namespace ClassicUO.Game.Managers
             ClearAllPendingHeals();
             EventSink.OnBuffAdded -= OnBuffAdded;
             EventSink.OnBuffRemoved -= OnBuffRemoved;
-            Instance = new(() => new BandageManager());
+            Instance = null;
         }
     }
 }

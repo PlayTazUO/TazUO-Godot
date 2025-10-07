@@ -721,7 +721,7 @@ sealed class PacketHandlers
             // Check for bandage healing
             if (oldHits != mobile.Hits)
             {
-                BandageManager.Instance.Value.OnMobileHpChanged(mobile, oldHits, mobile.Hits);
+                BandageManager.Instance.OnMobileHpChanged(mobile, oldHits, mobile.Hits);
             }
         }
     }
@@ -1895,7 +1895,7 @@ sealed class PacketHandlers
             // Check for bandage healing
             if (oldHits != mobile.Hits)
             {
-                BandageManager.Instance.Value.OnMobileHpChanged(mobile, oldHits, mobile.Hits);
+                BandageManager.Instance.OnMobileHpChanged(mobile, oldHits, mobile.Hits);
             }
         }
     }
@@ -3635,7 +3635,7 @@ sealed class PacketHandlers
             Mobile mobile = entity as Mobile;
             if (mobile != null)
             {
-                BandageManager.Instance.Value.OnMobileHpChanged(mobile, oldHits, entity.Hits);
+                BandageManager.Instance.OnMobileHpChanged(mobile, oldHits, entity.Hits);
             }
         }
     }
