@@ -25,10 +25,12 @@ namespace ClassicUO.Game.UI.ImGuiControls
 
         public override void DrawContent()
         {
-            ImGui.Text("Info:");
+            ImGui.Spacing();
             ImGuiComponents.Tooltip("This can be used to replace graphics of mobiles with other graphics (For example if dragons are too big, replace them with wyverns).");
 
-            ImGui.Separator();
+            ImGui.Spacing();
+
+            ImGui.SeparatorText("Options:");
 
             // Add entry section
             if (ImGui.Button("Add Entry"))
@@ -58,10 +60,9 @@ namespace ClassicUO.Game.UI.ImGuiControls
             if (showAddEntry)
             {
                 ImGui.Spacing();
-                ImGui.Text("New Entry:");
+                ImGui.SeparatorText("New Entry:");
                 ImGui.Spacing();
                 ImGui.BeginGroup();
-                ImGui.Separator();
                 ImGui.Text("Original Graphic:");
                 ImGui.SetNextItemWidth(150);
                 ImGui.InputText("##NewOriginalGraphic", ref newOriginalGraphicInput, 10);
