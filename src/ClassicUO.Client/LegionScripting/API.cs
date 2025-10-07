@@ -323,7 +323,7 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <param name="key">Key combination to listen for, e.g. "CTRL+SHIFT+F1".</param>
         /// <param name="callback">
-        /// Python function to invoke when the hotkey is pressed.  
+        /// Python function to invoke when the hotkey is pressed.
         /// If <c>null</c>, the hotkey will be unregistered.
         /// </param>
         public void OnHotKey(string key, object callback = null)
@@ -849,7 +849,7 @@ namespace ClassicUO.LegionScripting
         public bool BuffExists(string buffName) => MainThreadQueue.InvokeOnMainThread
         (() =>
             {
-                if (string.IsNullOrEmpty(buffName))
+                if (string.IsNullOrEmpty(buffName) || World == null || World.Player == null)
                     return false;
 
                 foreach (BuffIcon buff in World.Player.BuffIcons.Values)
@@ -878,6 +878,8 @@ namespace ClassicUO.LegionScripting
         /// <returns></returns>
         public Buff[] ActiveBuffs() => MainThreadQueue.InvokeOnMainThread(() =>
         {
+            if (World == null || World.Player == null) return new Buff[]{};
+
             List<Buff> buffs = new();
 
             foreach (BuffIcon buff in World.Player.BuffIcons.Values)

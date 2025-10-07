@@ -292,7 +292,7 @@ namespace ClassicUO.Game.Managers
 
             foreach (var property in itemPropertiesData.singlePropertyData)
             {
-                string cleanText = StripColorCodes(property.OriginalString);
+                //string cleanText = StripColorCodes(property.OriginalString);
 
                 // Find if this property is highlighted
                 bool isHighlighted = bestGridHighlightData != null && bestGridHighlightData.DoesPropertyMatch(property);
@@ -348,13 +348,13 @@ namespace ClassicUO.Game.Managers
                     catch
                     {
                         GameActions.Print(World.Instance, $"Invalid format string in tooltip override: {matchedOverride.FormattedText}", 32);
-                        finalLine = cleanText;
+                        finalLine = property.OriginalString;
                     }
                 }
                 else
                 {
                     // 2. No override → fallback to original text
-                    finalLine = cleanText;
+                    finalLine = property.OriginalString;
                 }
 
                 if (isHighlighted)
@@ -373,11 +373,11 @@ namespace ClassicUO.Game.Managers
             return sb.ToString();
         }
 
-        private static string StripColorCodes(string input)
-        {
-            if (string.IsNullOrEmpty(input)) return input;
-            return Regex.Replace(input, @"\/c\[[^\]]*\]|\/cd", string.Empty, RegexOptions.IgnoreCase);
-        }
+        // private static string StripColorCodes(string input)
+        // {
+        //     if (string.IsNullOrEmpty(input)) return input;
+        //     return Regex.Replace(input, @"\/c\[[^\]]*\]|\/cd", string.Empty, RegexOptions.IgnoreCase);
+        // }
 
         public static string ProcessTooltipText(World world, uint serial, uint compareTo = uint.MinValue)
         {

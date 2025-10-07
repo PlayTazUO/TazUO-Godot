@@ -24,6 +24,7 @@ namespace ClassicUO.Game.Managers
 
         private long _nextBandageTime = 0;
         private readonly LinkedList<uint> _pendingHeals = new();
+        private readonly HashSet<uint> _enqueuedInGlobalQueue = new();
         private Timer _retryTimer;
         private const int RETRY_INTERVAL_MS = 100;
 
@@ -81,6 +82,8 @@ namespace ClassicUO.Game.Managers
         /// </summary>
         private void ScheduleRetry(uint mobileSerial = 0)
         {
+            if (!IsEnabled) return;
+
             if(!_pendingHeals.Contains(mobileSerial))
             {
                 if (mobileSerial == World.Instance.Player)
@@ -94,7 +97,7 @@ namespace ClassicUO.Game.Managers
 
         private void VerifyTimer()
         {
-            if (_pendingHeals.Count == 0)
+            if (!IsEnabled || _pendingHeals.Count == 0)
             {
                 DestroyTimer();
                 return;
@@ -187,18 +190,28 @@ namespace ClassicUO.Game.Managers
                 return;
             }
 
-            // Enqueue the healing action into the global priority queue
-            GlobalPriorityQueue.Instance.Enqueue(() => ExecuteHealMobile(mobile));
+            // Only enqueue if not already in the global priority queue
+            if (_enqueuedInGlobalQueue.Add(mobile.Serial))
+            {
+                GlobalPriorityQueue.Instance.Enqueue(() => ExecuteHealMobile(mobile));
+            }
         }
 
         private void ExecuteHealMobile(Mobile mobile)
         {
-            if (World.Instance.Player == null || mobile == null)
+            // Remove from tracking set now that we're executing
+            _enqueuedInGlobalQueue.Remove(mobile.Serial);
+
+            if (World.Instance == null || World.Instance.Player == null || mobile == null)
                 return;
 
             Item bandage = FindBandage();
             if (bandage == null)
+            {
+                // No bandage found, schedule retry to check again later
+                ScheduleRetry(mobile.Serial);
                 return;
+            }
 
             if (UseNewBandagePacket)
             {
@@ -217,7 +230,8 @@ namespace ClassicUO.Game.Managers
 
             Log.Debug("Tried to heal someone");
 
-            ScheduleRetry(mobile.Serial); // Schedule recheck in case heal failed and hp stayed the same
+            // Schedule recheck in case heal failed and hp stayed the same
+            ScheduleRetry(mobile.Serial);
         }
 
         private Item FindBandage()
@@ -234,6 +248,7 @@ namespace ClassicUO.Game.Managers
         private void ClearAllPendingHeals()
         {
             _pendingHeals.Clear();
+            _enqueuedInGlobalQueue.Clear();
             DestroyTimer();
         }
 
