@@ -204,7 +204,7 @@ namespace ClassicUO.Game.Managers
             {
                 // Use the same pattern as BandageSelf but target the mobile
                 AsyncNetClient.Socket.Send_TargetSelectedObject(bandage.Serial, mobile.Serial);
-                _nextBandageTime = Time.Ticks + HealDelayMs;
+                _nextBandageTime = Time.Ticks + (CheckForBuff ? AsyncNetClient.Socket.Statistics.Ping + 10 : HealDelayMs);
             }
             else
             {
@@ -212,7 +212,7 @@ namespace ClassicUO.Game.Managers
                 TargetManager.SetAutoTarget(mobile.Serial, TargetType.Beneficial, CursorTarget.Object);
 
                 GameActions.DoubleClick(World.Instance, bandage.Serial);
-                _nextBandageTime = Time.Ticks + HealDelayMs;
+                _nextBandageTime = Time.Ticks + (CheckForBuff ? AsyncNetClient.Socket.Statistics.Ping + 10 : HealDelayMs);
             }
 
             Log.Debug("Tried to heal someone");
