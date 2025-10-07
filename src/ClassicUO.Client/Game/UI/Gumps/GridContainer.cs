@@ -38,15 +38,12 @@ using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Input;
 using ClassicUO.Renderer;
-using ClassicUO.Utility.Logging;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Xml;
-using System.Xml.Linq;
 using ClassicUO.Game.Scenes;
 using ClassicUO.Game.UI.Gumps.GridHighLight;
 
@@ -1740,16 +1737,16 @@ namespace ClassicUO.Game.UI.Gumps
                 for (LinkedObject i = _container.Items; i != null; i = i.Next)
                 {
                     Item item = (Item)i;
-                    var layer = (Layer)item.ItemData.Layer;
+                    Layer layer = (Layer)item.ItemData.Layer;
 
                     if (_container.IsCorpse && item.Layer > 0 && !Constants.BAD_CONTAINER_LAYERS[(int)layer])
-                    {
                         continue;
-                    }
+
                     if (item.ItemData.IsWearable && (layer == Layer.Face || layer == Layer.Beard || layer == Layer.Hair))
-                    {
                         continue;
-                    }
+
+                    if (item.IsDestroyed)
+                        continue;
 
                     World.OPL.Contains(item); //Request tooltip data
 
