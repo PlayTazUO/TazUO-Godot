@@ -53,12 +53,6 @@ namespace ClassicUO.Game.UI.ImGuiControls
                     ImGui.EndTabItem();
                 }
 
-                if (ImGui.BeginTabItem("Dress"))
-                {
-                    ImGui.Text("Dress Agent Will go here.");
-                    ImGui.EndTabItem();
-                }
-
                 if (ImGui.BeginTabItem("Journal Filter"))
                 {
                     DrawJournalFilter();
