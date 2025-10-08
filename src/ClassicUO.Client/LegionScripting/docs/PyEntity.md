@@ -9,10 +9,6 @@ description:  Represents a Python-accessible entity in the game world, such as a
 
 
 ## Properties
-### `Distance`
-
-**Type:** `int`
-
 ### `Name`
 
 **Type:** `string`
@@ -45,18 +41,6 @@ description:  Represents a Python-accessible entity in the game world, such as a
 
 
 **Return Type:** `string`
-
----
-
-### SetHue
-`(hue)`
-**Parameters:**
-
-| Name | Type | Optional | Description |
-| --- | --- | --- | --- |
-| `hue` | `ushort` | ❌ No |  |
-
-**Return Type:** `void` *(Does not return anything)*
 
 ---
 

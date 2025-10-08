@@ -16,6 +16,17 @@ description:  Base class for all Python-accessible game world objects.   Encapsu
  Check if the object is impassible or not based on item data.
 
 
+### `Hue`
+
+**Type:** `ushort`
+
+ The hue (color tint) applied to the object.
+
+
+### `Distance`
+
+**Type:** `int`
+
 ### `__class__`
 
 **Type:** `string`
@@ -53,18 +64,26 @@ description:  Base class for all Python-accessible game world objects.   Encapsu
  The graphic ID of the object, representing its visual appearance.
 
 
-### `Hue`
-
-**Type:** `ushort`
-
- The hue (color tint) applied to the object.
-
-
 
 ## Enums
 *No enums found.*
 
 ## Methods
+### SetHue
+`(hue)`
+ Set the hue of a game object.
+
+
+**Parameters:**
+
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| `hue` | `ushort` | ❌ No |  |
+
+**Return Type:** `void` *(Does not return anything)*
+
+---
+
 ### HasLineOfSightFrom
 `(observer)`
  Determines if there is line of sight from the specified observer to this object.

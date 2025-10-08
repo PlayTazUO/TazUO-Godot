@@ -15,7 +15,6 @@ public class PyEntity : PyGameObject
     /// </summary>
     public readonly uint Serial;
 
-    public int Distance => GetEntity()?.Distance ?? 0;
     public string Name => GetEntity()?.Name ?? "";
 
     /// <summary>
@@ -56,13 +55,6 @@ public class PyEntity : PyGameObject
     /// Accessible in Python as <c>obj.__class__</c>.
     /// </summary>
     public override string __class__ => "PyEntity";
-
-    public void SetHue(ushort hue)
-    {
-        var e = GetEntity();
-        if(e != null)
-            e.Hue = Hue = hue;
-    }
 
     /// <summary>
     /// This will remove the item from the client, it will reappear if you leave the area and come back.

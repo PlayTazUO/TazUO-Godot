@@ -233,7 +233,6 @@ class PyControlDropDown:
         pass
 
 class PyEntity:
-    Distance: int = None
     Name: str = None
     __class__: str = None
     Serial: int = None
@@ -246,9 +245,6 @@ class PyEntity:
         """
         pass
 
-    def SetHue(self, hue: int) -> None:
-        pass
-
     def Destroy(self) -> None:
         """
          This will remove the item from the client, it will reappear if you leave the area and come back.
@@ -259,12 +255,20 @@ class PyEntity:
 
 class PyGameObject:
     Impassible: bool = None
+    Hue: int = None
+    Distance: int = None
     __class__: str = None
     X: int = None
     Y: int = None
     Z: int = None
     Graphic: int = None
-    Hue: int = None
+
+    def SetHue(self, hue: int) -> None:
+        """
+         Set the hue of a game object.
+        
+        """
+        pass
 
     def HasLineOfSightFrom(self, observer: PyGameObject = None) -> bool:
         """
