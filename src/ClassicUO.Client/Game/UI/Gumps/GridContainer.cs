@@ -382,6 +382,14 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 GridHighlightMenu.Open(World);
             }));
+
+            if (container != World.Player.FindItemByLayer(Layer.Backpack))
+            {
+                control.Add(new ContextMenuItemEntry("Autoloot this container", () =>
+                {
+                    AutoLootManager.Instance.ForceLootContainer(LocalSerial);
+                }));
+            }
             return control;
         }
 

@@ -48,7 +48,7 @@ namespace ClassicUO.Game.Managers
                     string hpBar = GenerateProgressBar(World.Instance.Player.Hits, World.Instance.Player.HitsMax);
                     string mpBar = GenerateProgressBar(World.Instance.Player.Mana, World.Instance.Player.ManaMax);
                     string spBar = GenerateProgressBar(World.Instance.Player.Stamina, World.Instance.Player.StaminaMax);
-                    return $"HP {hpBar} MP {mpBar} SP {spBar}";
+                    return $"HP [{hpBar}] MP [{mpBar}] SP [{spBar}]";
 
                 default:
                     return $"HP {World.Instance.Player.Hits}/{World.Instance.Player.HitsMax}, MP {World.Instance.Player.Mana}/{World.Instance.Player.ManaMax}, SP {World.Instance.Player.Stamina}/{World.Instance.Player.StaminaMax}"; // Fallback to text mode
@@ -58,9 +58,9 @@ namespace ClassicUO.Game.Managers
         private static string GenerateProgressBar(ushort current, ushort max)
         {
             const int barLength = 8;
-            const char fullBlock = '█';
-            const char partialBlock = '▓';
-            const char emptyBlock = '░';
+            const char fullBlock = '|';
+            const char partialBlock = '\\';
+            const char emptyBlock = ' ';
 
             if (max == 0)
                 return new string(emptyBlock, barLength);
@@ -115,7 +115,7 @@ namespace ClassicUO.Game.Managers
                     case TitleBarStatsMode.Percent:
                         return "PlayerName - HP 85%, MP 84%, SP 95%";
                     case TitleBarStatsMode.ProgressBar:
-                        return "PlayerName - HP ██████▓░ MP ██████▓░ SP ███████▓";
+                        return "PlayerName - HP ||||\\  MP ||||\\  SP ||||\\ ";
                     default:
                         return "PlayerName - HP 85/100, MP 42/50, SP 95/100";
                 }

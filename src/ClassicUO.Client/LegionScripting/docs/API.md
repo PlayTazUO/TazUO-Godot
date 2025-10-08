@@ -21,7 +21,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 [Additional notes](../notes/)  
 
-*This was generated on `10/6/25`.*
+*This was generated on `10/7/25`.*
 
 ## Properties
 ### `JournalEntries`
@@ -192,7 +192,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 | Name | Type | Optional | Description |
 | --- | --- | --- | --- |
 | `key` | `string` | ❌ No | Key combination to listen for, e.g. "CTRL+SHIFT+F1". |
-| `callback` | `object` | ✅ Yes | Python function to invoke when the hotkey is pressed.    
+| `callback` | `object` | ✅ Yes | Python function to invoke when the hotkey is pressed.  
          If <c>null</c> , the hotkey will be unregistered. |
 
 **Return Type:** `void` *(Does not return anything)*
