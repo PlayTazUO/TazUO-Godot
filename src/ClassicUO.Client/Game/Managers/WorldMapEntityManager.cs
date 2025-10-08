@@ -38,6 +38,7 @@ namespace ClassicUO.Game.Managers
             {
                 Name = e.Name;
                 _mobileNameCache[Serial] = Name;
+                _ = FriendliesSQLManager.Instance.AddAsync(Serial, Name);
             }
 
             return string.IsNullOrEmpty(Name) && !_mobileNameCache.TryGetValue(Serial, out Name) ? "<out of range>" : Name;
@@ -152,6 +153,16 @@ namespace ClassicUO.Game.Managers
                 {
                     entity.Name = name;
                 }
+            }
+
+            if (string.IsNullOrEmpty(entity.Name))
+            {
+                FriendliesSQLManager.Instance.GetNameAsync(entity.Serial).ContinueWith((dbName) =>
+                {
+                    if (string.IsNullOrEmpty(dbName.Result)) return;
+
+                    MainThreadQueue.EnqueueAction(() => entity.Name = dbName.Result);
+                });
             }
         }
 

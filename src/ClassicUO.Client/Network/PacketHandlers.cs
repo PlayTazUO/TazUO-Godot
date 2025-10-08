@@ -5923,6 +5923,14 @@ sealed class PacketHandlers
                             null,
                             true
                         );
+
+                        if (type == 0x02) //is guild member
+                        {
+                            Entity ent = world.Get(serial);
+                            if (ent != null && !string.IsNullOrEmpty(ent.Name))
+                                _ = FriendliesSQLManager.Instance.AddAsync(ent.Serial, ent.Name);
+
+                        }
                     }
                 }
 

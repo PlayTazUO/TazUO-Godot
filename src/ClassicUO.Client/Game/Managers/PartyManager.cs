@@ -109,7 +109,10 @@ namespace ClassicUO.Game.Managers
                                 Members[i] = new PartyMember(_world, serial);
                                 var mob = _world.Mobiles.Get(serial);
                                 if (mob != null)
+                                {
+                                    _ = FriendliesSQLManager.Instance.AddAsync(serial, mob.Name);
                                     mob.InParty = true;
+                                }
                             }
 
                             done++;
