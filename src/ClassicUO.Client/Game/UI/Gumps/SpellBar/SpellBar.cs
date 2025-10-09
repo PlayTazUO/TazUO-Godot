@@ -4,6 +4,7 @@ using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
+using ClassicUO.Game.UI.ImGuiControls;
 using ClassicUO.Input;
 using ClassicUO.Renderer;
 using Microsoft.Xna.Framework;
@@ -17,7 +18,7 @@ public class SpellBar : Gump
     private SpellEntry[] spellEntries = new SpellEntry[10];
     private TextBox rowLabel;
     private AlphaBlendControl background;
-    
+
     public SpellBar(World world) : base(world, 0, 0)
     {
         Instance?.Dispose();
@@ -138,7 +139,7 @@ public class SpellBar : Gump
                 menu.ContextMenu?.Show();
             }
         };
-        
+
         menu.ContextMenu = new ContextMenuControl(this);
         menu.ContextMenu.Add(new ContextMenuItemEntry("Save preset", () =>
         {
@@ -179,12 +180,7 @@ public class SpellBar : Gump
                 Build();
             }));
         }));
-        menu.ContextMenu.Add(new ContextMenuItemEntry("More options", () =>
-        {
-            AssistantGump g = new AssistantGump(World);
-            g.ChangePage((int)AssistantGump.PAGE.SpellBar);
-            UIManager.Add(g);
-        }));
+        menu.ContextMenu.Add(new ContextMenuItemEntry("More options", AssistantWindow.Show));
 
         Add(menu);
     }
@@ -387,7 +383,7 @@ public class SpellBar : Gump
                 UIManager.Add
                 (
                     new SpellQuickSearch
-                    (World, 
+                    (World,
                         ScreenCoordinateX - 20, ScreenCoordinateY - 90, (s) =>
                         {
                             SetSpell(s, row, col);

@@ -6,7 +6,6 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using ClassicUO.Assets;
-using ImGuiNET.SampleProgram.XNA;
 using ClassicUO.Game.UI.ImGuiControls;
 
 namespace ClassicUO.Game.UI

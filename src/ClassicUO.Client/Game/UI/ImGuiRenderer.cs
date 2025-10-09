@@ -1,22 +1,20 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using ClassicUO;
-using ClassicUO.Game.UI;
-using ClassicUO.Game.UI.Gumps;
-using SDL3;
+using ImGuiNET;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Vector2 = System.Numerics.Vector2;
 
-namespace ImGuiNET.SampleProgram.XNA
+namespace ClassicUO.Game.UI
 {
     /// <summary>
     /// ImGui renderer for use with XNA-likes (FNA & MonoGame)
     /// </summary>
     public class ImGuiRenderer
     {
-        private Game _game;
+        private Microsoft.Xna.Framework.Game _game;
 
         // Graphics
         private GraphicsDevice _graphicsDevice;
@@ -42,9 +40,9 @@ namespace ImGuiNET.SampleProgram.XNA
         private int _scrollWheelValue;
         private readonly float WHEEL_DELTA = 120;
         private Keys[] _allKeys = Enum.GetValues<Keys>();
-        private bool _textInputActive = false;
+        private Vector2 _displaySize = Vector2.One;
 
-        public ImGuiRenderer(Game game)
+        public ImGuiRenderer(Microsoft.Xna.Framework.Game game)
         {
             var context = ImGui.CreateContext();
             ImGui.SetCurrentContext(context);
@@ -65,6 +63,19 @@ namespace ImGuiNET.SampleProgram.XNA
             };
 
             SetupInput();
+            Client.Game.Window.ClientSizeChanged += WindowOnClientSizeChanged;
+            WindowOnClientSizeChanged(null, null);
+            // var io = ImGui.GetIO();
+            // io.DisplayFramebufferScale = Vector2.One;
+        }
+
+        private void WindowOnClientSizeChanged(object sender, EventArgs e)
+        {
+            var bounds = Client.Game.Window.ClientBounds;
+            _displaySize = new(bounds.Width < 1 ? 1 : bounds.Width, bounds.Height < 1 ? 1 : bounds.Height);
+
+            var io = ImGui.GetIO();
+            io.DisplaySize = _displaySize;
         }
 
         #region ImGuiRenderer
@@ -72,6 +83,7 @@ namespace ImGuiNET.SampleProgram.XNA
         public void Dispose()
         {
             TextInputEXT.TextInput -= TextInput;
+            Client.Game.Window.ClientSizeChanged -= WindowOnClientSizeChanged;
         }
 
         /// <summary>
@@ -198,7 +210,7 @@ namespace ImGuiNET.SampleProgram.XNA
         protected virtual void UpdateInput()
         {
             if(!Client.Game.IsActive) return;
-            
+
             var io = ImGui.GetIO();
 
             var mouse = Mouse.GetState();
@@ -222,9 +234,6 @@ namespace ImGuiNET.SampleProgram.XNA
                     io.AddKeyEvent(imguikey, keyboard.IsKeyDown(key));
                 }
             }
-
-            io.DisplaySize = new System.Numerics.Vector2(_graphicsDevice.PresentationParameters.BackBufferWidth, _graphicsDevice.PresentationParameters.BackBufferHeight);
-            io.DisplayFramebufferScale = new System.Numerics.Vector2(1f, 1f);
         }
 
         private bool TryMapKeys(Keys key, out ImGuiKey imguikey)
