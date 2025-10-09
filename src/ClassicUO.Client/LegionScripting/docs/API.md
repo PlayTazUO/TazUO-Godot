@@ -701,6 +701,21 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 ---
 
+### ClientCommand
+`(command)`
+ Executes a client command as if typed in the game console
+
+
+**Parameters:**
+
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| `command` | `string` | ❌ No | The command to execute (including any arguments) |
+
+**Return Type:** `void` *(Does not return anything)*
+
+---
+
 ### BuffExists
 `(buffName)`
  Check if a buff is active.

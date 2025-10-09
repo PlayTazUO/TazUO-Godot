@@ -796,6 +796,13 @@ def Organizer(name: str, source: int = 0, destination: int = 0) -> None:
     """
     pass
 
+def ClientCommand(command: str) -> None:
+    """
+     Executes a client command as if typed in the game console
+    
+    """
+    pass
+
 def BuffExists(buffName: str) -> bool:
     """
      Check if a buff is active.

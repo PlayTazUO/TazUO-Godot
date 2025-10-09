@@ -854,11 +854,28 @@ namespace ClassicUO.LegionScripting
         {
             if (string.IsNullOrEmpty(name))
             {
-                GameActions.Print("Invalid organizer name");
+                GameActions.Print("Invalid organizer name", 32);
                 return;
             }
 
             OrganizerAgent.Instance.RunOrganizer(name, source, destination);
+        }
+
+        /// <summary>
+        /// Executes a client command as if typed in the game console
+        /// </summary>
+        /// <param name="command">The command to execute (including any arguments)</param>
+        public void ClientCommand(string command)
+        {
+            if (string.IsNullOrEmpty(command))
+            {
+                GameActions.Print("Command can't be empty", 32);
+                return;
+            }
+
+            var split = command.Split(' ');
+
+            World.Instance.CommandManager.Execute(split[0], split);
         }
 
         /// <summary>
