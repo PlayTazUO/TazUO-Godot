@@ -555,6 +555,9 @@ namespace ClassicUO.Game.UI.ImGuiControls
             if (item == null)
                 return;
 
+            if (ItemDetailWindow.OpenedWindows.Contains(item))
+                return;
+
             var detailWindow = new ItemDetailWindow(item);
             ImGuiManager.AddWindow(detailWindow);
         }

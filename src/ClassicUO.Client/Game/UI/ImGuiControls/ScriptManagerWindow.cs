@@ -290,6 +290,7 @@ while True:
             // Initialize collapsed state from settings if not already in our set
             string normalizedGroupName = groupName == NOGROUPTEXT ? "" : groupName;
             string normalizedParentGroup = parentGroup == NOGROUPTEXT ? "" : parentGroup;
+            string parentSpacer = string.IsNullOrEmpty(parentGroup) ? string.Empty : "   ";
 
             bool isCollapsedInSettings = string.IsNullOrEmpty(normalizedParentGroup)
                 ? LegionScripting.LegionScripting.IsGroupCollapsed(normalizedGroupName)
@@ -304,7 +305,7 @@ while True:
             // Create custom expand/collapse button with custom symbols
             string expandSymbol = isCollapsed ? "+" : "-"; // Plus for collapsed, minus for expanded
             // Use a square button with larger size for better visibility
-            ImGui.Text($"[ {expandSymbol} ] ");
+            ImGui.Text($"{parentSpacer}[ {expandSymbol} ] ");
 
             ImGui.SameLine(0, 2); // Small spacing between button and text
 
@@ -395,7 +396,7 @@ while True:
                         // These are scripts directly in this group
                         foreach (var script in subGroup.Value)
                         {
-                            DrawScript(script);
+                            DrawScript(script, parentSpacer);
                         }
                     }
                 }
@@ -404,9 +405,12 @@ while True:
             ImGui.PopID();
         }
 
-        private void DrawScript(ScriptFile script)
+        private void DrawScript(ScriptFile script, string spacer)
         {
             ImGui.PushID(script.FullPath);
+
+            ImGui.Text(spacer);
+            ImGui.SameLine();
 
             // Add menu button next to play button
             if (ImGui.Button("..."))

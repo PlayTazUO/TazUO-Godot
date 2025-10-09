@@ -1,22 +1,25 @@
 using ImGuiNET;
-using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Gumps;
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace ClassicUO.Game.UI.ImGuiControls
 {
     public class ItemDetailWindow : ImGuiWindow
     {
+        public static HashSet<ItemInfo> OpenedWindows = new();
+
         private readonly ItemInfo _itemInfo;
 
         public ItemDetailWindow(ItemInfo itemInfo) : base($"Item Details - {itemInfo.Name}")
         {
             _itemInfo = itemInfo ?? throw new ArgumentNullException(nameof(itemInfo));
             WindowFlags = ImGuiWindowFlags.AlwaysAutoResize;
+            OpenedWindows.Add(itemInfo);
         }
 
         public override void DrawContent()
@@ -423,6 +426,12 @@ namespace ClassicUO.Game.UI.ImGuiControls
             {
                 Utility.Logging.Log.Error($"Failed to search for container 0x{containerSerial:X8}: {ex.Message}");
             }
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            OpenedWindows.Remove(_itemInfo);
         }
     }
 }

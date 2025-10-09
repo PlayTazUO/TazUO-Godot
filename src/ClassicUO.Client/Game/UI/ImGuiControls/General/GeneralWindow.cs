@@ -1,3 +1,4 @@
+using System;
 using ImGuiNET;
 using ClassicUO.Configuration;
 using System.Numerics;
@@ -120,8 +121,7 @@ namespace ClassicUO.Game.UI.ImGuiControls
             ImGui.SetNextItemWidth(150);
             if (ImGui.InputInt("Object Delay", ref _objectMoveDelay, 50, 100))
             {
-                if (_objectMoveDelay < 0 || _objectMoveDelay > 1000)
-                    _objectMoveDelay = 1000;
+                _objectMoveDelay = Math.Clamp(_objectMoveDelay, 0, 3000);
 
                 _profile.MoveMultiObjectDelay = _objectMoveDelay;
             }
