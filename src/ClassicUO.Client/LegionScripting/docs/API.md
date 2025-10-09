@@ -21,7 +21,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 [Additional notes](../notes/)  
 
-*This was generated on `10/7/25`.*
+*This was generated on `10/8/25`.*
 
 ## Properties
 ### `JournalEntries`
@@ -673,6 +673,31 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 
 **Return Type:** `PythonList`
+
+---
+
+### Organizer
+`(name, source, destination)`
+ Runs an organizer agent to move items between containers.
+ Example:
+ ```py
+ # Run organizer with default containers
+ API.Organizer("MyOrganizer")
+
+ # Run organizer with specific source and destination
+ API.Organizer("MyOrganizer", 0x40001234, 0x40005678)
+ ```
+
+
+**Parameters:**
+
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| `name` | `string` | ❌ No | The name of the organizer configuration to run |
+| `source` | `uint` | ✅ Yes | Optional serial of the source container (0 for default) |
+| `destination` | `uint` | ✅ Yes | Optional serial of the destination container (0 for default) |
+
+**Return Type:** `void` *(Does not return anything)*
 
 ---
 

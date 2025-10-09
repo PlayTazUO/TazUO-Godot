@@ -826,15 +826,40 @@ namespace ClassicUO.LegionScripting
         /// </summary>
         /// <returns>Returns a list of outfit names for use with Dress(outfitname)</returns>
         public PythonList GetAvailableDressOutfits() => MainThreadQueue.InvokeOnMainThread(() =>
+        {
+            PythonList list = new();
+            foreach (var config in DressAgentManager.Instance.CurrentPlayerConfigs)
             {
-                PythonList list = new();
-                foreach (var config in DressAgentManager.Instance.CurrentPlayerConfigs)
-                {
-                    list.Add(config.Name);
-                }
+                list.Add(config.Name);
+            }
 
-                return list;
-            });
+            return list;
+        });
+
+        /// <summary>
+        /// Runs an organizer agent to move items between containers.
+        /// Example:
+        /// ```py
+        /// # Run organizer with default containers
+        /// API.Organizer("MyOrganizer")
+        ///
+        /// # Run organizer with specific source and destination
+        /// API.Organizer("MyOrganizer", 0x40001234, 0x40005678)
+        /// ```
+        /// </summary>
+        /// <param name="name">The name of the organizer configuration to run</param>
+        /// <param name="source">Optional serial of the source container (0 for default)</param>
+        /// <param name="destination">Optional serial of the destination container (0 for default)</param>
+        public void Organizer(string name, uint source = 0, uint destination = 0)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                GameActions.Print("Invalid organizer name");
+                return;
+            }
+
+            OrganizerAgent.Instance.RunOrganizer(name, source, destination);
+        }
 
         /// <summary>
         /// Check if a buff is active.

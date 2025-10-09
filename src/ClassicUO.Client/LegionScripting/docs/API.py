@@ -781,6 +781,21 @@ def GetAvailableDressOutfits() -> Any:
     """
     pass
 
+def Organizer(name: str, source: int = 0, destination: int = 0) -> None:
+    """
+     Runs an organizer agent to move items between containers.
+     Example:
+     ```py
+     # Run organizer with default containers
+     API.Organizer("MyOrganizer")
+    
+     # Run organizer with specific source and destination
+     API.Organizer("MyOrganizer", 0x40001234, 0x40005678)
+     ```
+    
+    """
+    pass
+
 def BuffExists(buffName: str) -> bool:
     """
      Check if a buff is active.

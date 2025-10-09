@@ -201,7 +201,7 @@ namespace ClassicUO.Game.Managers
             }
         }
 
-        public void RunOrganizer(string name)
+        public void RunOrganizer(string name, uint source = 0, uint dest = 0)
         {
             var config = OrganizerConfigs.FirstOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (config == null)
@@ -210,7 +210,7 @@ namespace ClassicUO.Game.Managers
                 return;
             }
 
-            RunSingleOrganizer(config);
+            RunSingleOrganizer(config, source, dest);
         }
 
         public void RunOrganizer(int index)
@@ -310,7 +310,7 @@ namespace ClassicUO.Game.Managers
             return itemsToMove.Count;
         }
 
-        private void RunSingleOrganizer(OrganizerConfig config)
+        private void RunSingleOrganizer(OrganizerConfig config, uint source = 0, uint dest = 0)
         {
             if (!config.Enabled)
             {
@@ -325,9 +325,11 @@ namespace ClassicUO.Game.Managers
                 return;
             }
 
-            var sourceCont = config.SourceContSerial != 0
-                ? World.Instance.Items.Get(config.SourceContSerial)
-                : backpack;
+            var sourceCont = source != 0
+                ? World.Instance.Items.Get(source)
+                : config.SourceContSerial != 0
+                    ? World.Instance.Items.Get(config.SourceContSerial)
+                    : backpack;
 
             if (sourceCont == null)
             {
@@ -335,9 +337,10 @@ namespace ClassicUO.Game.Managers
                 return;
             }
 
-            var destCont = config.DestContSerial != 0
-                ? World.Instance.Items.Get(config.DestContSerial)
-                : backpack;
+            var destCont = dest != 0 ? World.Instance.Items.Get(dest) :
+                config.DestContSerial != 0
+                    ? World.Instance.Items.Get(config.DestContSerial)
+                    : backpack;
 
             if (destCont == null)
             {
