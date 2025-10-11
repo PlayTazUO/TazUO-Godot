@@ -5576,28 +5576,29 @@ sealed class PacketHandlers
         uint gumpID = p.ReadUInt32BE();
         uint x = p.ReadUInt32BE();
         uint y = p.ReadUInt32BE();
-        uint clen = p.ReadUInt32BE() - 4;
-        int dlen = (int)p.ReadUInt32BE();
-        if (dlen < 1)
+        uint layoutCompressedLen = p.ReadUInt32BE() - 4;
+        int layoutDecompressedLen = (int)p.ReadUInt32BE();
+
+        if (layoutDecompressedLen < 1)
         {
             Log.Error("[Initial]A bad compressed gump packet was received. Unable to process.");
             return;
         }
-        byte[] decData = System.Buffers.ArrayPool<byte>.Shared.Rent(dlen);
+
+        byte[] layoutBuffer = System.Buffers.ArrayPool<byte>.Shared.Rent(layoutDecompressedLen);
         string layout;
 
         try
         {
-            ZLib.Decompress(p.Buffer.Slice(p.Position, (int)clen), decData.AsSpan(0, dlen));
-
-            layout = Encoding.UTF8.GetString(decData.AsSpan(0, dlen));
+            ZLib.Decompress(p.Buffer.Slice(p.Position, (int)layoutCompressedLen), layoutBuffer.AsSpan(0, layoutDecompressedLen));
+            layout = Encoding.UTF8.GetString(layoutBuffer.AsSpan(0, layoutDecompressedLen));
         }
         finally
         {
-            System.Buffers.ArrayPool<byte>.Shared.Return(decData);
+            System.Buffers.ArrayPool<byte>.Shared.Return(layoutBuffer);
         }
 
-        p.Skip((int)clen);
+        p.Skip((int)layoutCompressedLen);
 
         uint linesNum = p.ReadUInt32BE();
         string[] lines = new string[linesNum];
@@ -5606,24 +5607,23 @@ sealed class PacketHandlers
         {
             if (linesNum != 0)
             {
-                clen = p.ReadUInt32BE() - 4;
-                dlen = (int)p.ReadUInt32BE();
+                uint linesCompressedLen = p.ReadUInt32BE() - 4;
+                int linesDecompressedLen = (int)p.ReadUInt32BE();
 
-                if (dlen < 1)
+                if (linesDecompressedLen < 1)
                 {
                     Log.Error("A bad compressed gump packet was received. Unable to process.");
-
                     return;
                 }
 
-                decData = System.Buffers.ArrayPool<byte>.Shared.Rent(dlen);
+                byte[] linesBuffer = System.Buffers.ArrayPool<byte>.Shared.Rent(linesDecompressedLen);
 
                 try
                 {
-                    ZLib.Decompress(p.Buffer.Slice(p.Position, (int)clen), decData.AsSpan(0, dlen));
-                    p.Skip((int)clen);
+                    ZLib.Decompress(p.Buffer.Slice(p.Position, (int)linesCompressedLen), linesBuffer.AsSpan(0, linesDecompressedLen));
+                    p.Skip((int)linesCompressedLen);
 
-                    var reader = new StackDataReader(decData.AsSpan(0, dlen));
+                    var reader = new StackDataReader(linesBuffer.AsSpan(0, linesDecompressedLen));
 
                     for (int i = 0; i < linesNum; ++i)
                     {
@@ -5649,44 +5649,20 @@ sealed class PacketHandlers
                     }
 
                     reader.Release();
-
-                    //for (int i = 0, index = 0; i < linesNum && index < dlen; i++)
-                    //{
-                    //    int length = ((decData[index++] << 8) | decData[index++]) << 1;
-                    //    int true_length = 0;
-
-                    //    for (int k = 0; k < length && true_length < length && index + true_length < dlen; ++k, true_length += 2)
-                    //    {
-                    //        ushort c = (ushort)(((decData[index + true_length] << 8) | decData[index + true_length + 1]) << 1);
-
-                    //        if (c == '\0')
-                    //        {
-                    //            break;
-                    //        }
-                    //    }
-
-                    //    lines[i] = Encoding.BigEndianUnicode.GetString(decData, index, true_length);
-
-                    //    index += length;
-                    //}
                 }
                 finally
                 {
-                    System.Buffers.ArrayPool<byte>.Shared.Return(decData);
+                    System.Buffers.ArrayPool<byte>.Shared.Return(linesBuffer);
                 }
             }
 
-                CreateGump(world, sender, gumpID, (int)x, (int)y, layout, lines);
-            }
-            catch (Exception e)
-            {
-                HtmlCrashLogGen.Generate($"DLEN: {dlen}\nSENDER: {sender}\nGUMPID: {gumpID}\n" + e.ToString(), description:"TazUO almost crashed, it was prevented but this was put in place for debugging, please post this on our discord.");
-            }
-            finally
-            {
-                //System.Buffers.ArrayPool<string>.Shared.Return(lines);
-            }
+            CreateGump(world, sender, gumpID, (int)x, (int)y, layout, lines);
         }
+        catch (Exception e)
+        {
+            HtmlCrashLogGen.Generate(e.ToString(), description: "TazUO almost crashed, it was prevented but this was put in place for debugging, please post this on our discord.");
+        }
+    }
 
     private static void UpdateMobileStatus(World world, ref StackDataReader p)
     {
