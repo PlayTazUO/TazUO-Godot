@@ -142,6 +142,9 @@ namespace ClassicUO.Game.Managers
             if (player == null || mobile == null)
                 return false;
 
+            if (mobile.IsDead)
+                return false;
+
             // Check if this is the player or a friend
             bool isPlayer = mobile == player;
             bool isFriend = !isPlayer && FriendBandagingEnabled && FriendsListManager.Instance.IsFriend(mobile.Serial);
