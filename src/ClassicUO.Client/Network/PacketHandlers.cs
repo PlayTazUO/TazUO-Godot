@@ -6795,8 +6795,12 @@ sealed class PacketHandlers
         string[] lines
     )
     {
-            ClassicUO.LegionScripting.ScriptRecorder.Instance.RecordWaitForGump(gumpID.ToString());
-            ScriptingInfoGump.AddOrUpdateInfo("Last Gump Opened", gumpID);
+        ScriptRecorder.Instance.RecordWaitForGump(gumpID.ToString());
+        ScriptingInfoGump.AddOrUpdateInfo("Last Gump Opened", gumpID);
+
+        if (string.IsNullOrEmpty(layout))
+            return null;
+
         List<string> cmdlist = _parser.GetTokens(layout);
         int cmdlen = cmdlist.Count;
 
