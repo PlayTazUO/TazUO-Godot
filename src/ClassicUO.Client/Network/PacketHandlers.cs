@@ -5605,7 +5605,7 @@ sealed class PacketHandlers
             return;
         }
 
-        byte[] layoutBuffer = System.Buffers.ArrayPool<byte>.Shared.Rent(layoutDecompressedLen);
+        byte[] layoutBuffer = new byte[layoutDecompressedLen]; //System.Buffers.ArrayPool<byte>.Shared.Rent(layoutDecompressedLen);
         string layout = null;
 
         try
@@ -5618,10 +5618,10 @@ sealed class PacketHandlers
             Log.Error($"Failed to decompress or decode gump layout: {ex.Message}");
             return;
         }
-        finally
-        {
-            System.Buffers.ArrayPool<byte>.Shared.Return(layoutBuffer);
-        }
+        // finally
+        // {
+        //     System.Buffers.ArrayPool<byte>.Shared.Return(layoutBuffer);
+        // }
 
         p.Skip((int)layoutCompressedLen);
 
@@ -5641,44 +5641,42 @@ sealed class PacketHandlers
                     return;
                 }
 
-                byte[] linesBuffer = System.Buffers.ArrayPool<byte>.Shared.Rent(linesDecompressedLen);
+                byte[] linesBuffer = new byte[linesDecompressedLen]; //System.Buffers.ArrayPool<byte>.Shared.Rent(linesDecompressedLen);
 
-                try
+                ZLib.Decompress(p.Buffer.Slice(p.Position, (int)linesCompressedLen), linesBuffer.AsSpan(0, linesDecompressedLen));
+                p.Skip((int)linesCompressedLen);
+
+                var reader = new StackDataReader(linesBuffer.AsSpan(0, linesDecompressedLen));
+
+                for (int i = 0; i < linesNum; ++i)
                 {
-                    ZLib.Decompress(p.Buffer.Slice(p.Position, (int)linesCompressedLen), linesBuffer.AsSpan(0, linesDecompressedLen));
-                    p.Skip((int)linesCompressedLen);
+                    int remaining = reader.Remaining;
 
-                    var reader = new StackDataReader(linesBuffer.AsSpan(0, linesDecompressedLen));
-
-                    for (int i = 0; i < linesNum; ++i)
+                    if (remaining >= 2)
                     {
-                        int remaining = reader.Remaining;
+                        int length = reader.ReadUInt16BE();
 
-                        if (remaining >= 2)
+                        if (length > 0)
                         {
-                            int length = reader.ReadUInt16BE();
-
-                            if (length > 0)
-                            {
-                                lines[i] = reader.ReadUnicodeBE(length);
-                            }
-                            else
-                            {
-                                lines[i] = string.Empty;
-                            }
+                            lines[i] = reader.ReadUnicodeBE(length);
                         }
                         else
                         {
                             lines[i] = string.Empty;
                         }
                     }
+                    else
+                    {
+                        lines[i] = string.Empty;
+                    }
+                }
 
-                    reader.Release();
-                }
-                finally
-                {
-                    System.Buffers.ArrayPool<byte>.Shared.Return(linesBuffer);
-                }
+                reader.Release();
+
+                // finally
+                // {
+                //     System.Buffers.ArrayPool<byte>.Shared.Return(linesBuffer);
+                // }
             }
 
             if (string.IsNullOrEmpty(layout))
