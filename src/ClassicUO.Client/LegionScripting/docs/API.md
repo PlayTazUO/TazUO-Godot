@@ -1927,6 +1927,21 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 ---
 
+### GetGumpContents
+`(ID)`
+ This will return a string of all the text in a server-side gump.
+
+
+**Parameters:**
+
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| `ID` | `uint` | ✅ Yes | Gump ID, blank to use the last gump. |
+
+**Return Type:** `string`
+
+---
+
 ### GetGump
 `(ID)`
  Get a gump by ID.

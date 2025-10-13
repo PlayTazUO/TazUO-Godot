@@ -19,6 +19,7 @@ using ClassicUO.LegionScripting.PyClasses;
 using ClassicUO.Network;
 using ClassicUO.Utility;
 using FontStashSharp.RichText;
+using IronPython.Modules;
 using IronPython.Runtime;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
@@ -2307,6 +2308,31 @@ namespace ClassicUO.LegionScripting
                 return false;
             }
         );
+
+        /// <summary>
+        /// This will return a string of all the text in a server-side gump.
+        /// </summary>
+        /// <param name="ID">Gump ID, blank to use the last gump.</param>
+        /// <returns></returns>
+        public string GetGumpContents(uint ID = uint.MaxValue)
+        {
+            Gump g = UIManager.GetGumpServer(ID == uint.MaxValue ? World.Player.LastGumpID : ID);
+
+            if (g == null)
+                return string.Empty;
+
+            string allControlsText = string.Empty;
+
+            foreach (Control c in g.Children)
+            {
+                if (c is Label l)
+                    allControlsText += l.Text + " ";
+                else if (c is HtmlControl ht)
+                    allControlsText += ht.Text + " ";
+            }
+
+            return allControlsText;
+        }
 
         /// <summary>
         /// Get a gump by ID.

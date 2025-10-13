@@ -1537,6 +1537,13 @@ def GumpContains(text: str, ID: int = 1337) -> bool:
     """
     pass
 
+def GetGumpContents(ID: int = 1337) -> str:
+    """
+     This will return a string of all the text in a server-side gump.
+    
+    """
+    pass
+
 def GetGump(ID: int = 1337) -> Gump:
     """
      Get a gump by ID.
