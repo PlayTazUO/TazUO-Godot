@@ -11,7 +11,7 @@ description:  Python API wrapper for Gump (game window) objects in TazUO.  Provi
 
 
 ## Properties
-### `Disposed`
+### `IsDisposed`
 
 **Type:** `bool`
 

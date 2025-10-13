@@ -16,7 +16,7 @@ public class PyBaseGump(Gump gump) : PyBaseControl(gump), IPyGump
     /// Returns true if the gump is disposed or no longer exists.
     /// Used in python API
     /// </summary>
-    public bool Disposed
+    public bool IsDisposed
     {
         get
         {

@@ -163,7 +163,7 @@ class PyBaseControl:
         pass
 
 class PyBaseGump:
-    Disposed: bool = None
+    IsDisposed: bool = None
     PacketGumpText: str = None
     Gump: Gump = None
 
