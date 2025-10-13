@@ -3141,7 +3141,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="canMove">Allow the player to move this gump</param>
         /// <param name="keepOpen">If true, the gump won't be closed if the script stops. Otherwise, it will be closed when the script is stopped. Defaults to false.</param>
         /// <returns>A new, empty gump</returns>
-        public Gump CreateGump(bool acceptMouseInput = true, bool canMove = true, bool keepOpen = false)
+        public PyBaseGump CreateGump(bool acceptMouseInput = true, bool canMove = true, bool keepOpen = false)
         {
             var g = new Gump(World, 0, 0)
             {
@@ -3150,10 +3150,12 @@ namespace ClassicUO.LegionScripting
                 WantUpdateSize = true
             };
 
+            PyBaseGump pyGump = new(g);
+
             if (!keepOpen)
                 gumps.Add(g);
 
-            return g;
+            return pyGump;
         }
 
         /// <summary>
@@ -3193,11 +3195,9 @@ namespace ClassicUO.LegionScripting
         /// <param name="hue">Optional hue</param>
         /// <param name="isChecked">Default false, set to true if you want this checkbox checked on creation</param>
         /// <returns>The checkbox</returns>
-        public Checkbox CreateGumpCheckbox(string text = "", ushort hue = 0, bool isChecked = false) => new Checkbox(0x00D2, 0x00D3, text, color: hue)
-        {
-            CanMove = true,
-            IsChecked = isChecked
-        };
+        public PyCheckbox CreateGumpCheckbox(string text = "", ushort hue = 0, bool isChecked = false) =>
+            new PyCheckbox(new Checkbox(0x00D2, 0x00D3, text, color: hue) { CanMove = true, IsChecked = isChecked }
+            );
 
         /// <summary>
         /// Create a label for a gump.

@@ -2578,7 +2578,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 | `canMove` | `bool` | ✅ Yes | Allow the player to move this gump |
 | `keepOpen` | `bool` | ✅ Yes | If true, the gump won't be closed if the script stops. Otherwise, it will be closed when the script is stopped. Defaults to false. |
 
-**Return Type:** `Gump`
+**Return Type:** `PyBaseGump`
 
 ---
 
@@ -2627,7 +2627,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 | `hue` | `ushort` | ✅ Yes | Optional hue |
 | `isChecked` | `bool` | ✅ Yes | Default false, set to true if you want this checkbox checked on creation |
 
-**Return Type:** `Checkbox`
+**Return Type:** `PyCheckbox`
 
 ---
 

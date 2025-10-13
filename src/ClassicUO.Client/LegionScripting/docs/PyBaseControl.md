@@ -21,19 +21,7 @@ description: PyBaseControl class documentation
 
 | Name | Type | Optional | Description |
 | --- | --- | --- | --- |
-| `childControl` | `Control` | ❌ No | The control to add as a child |
-
-**Return Type:** `void` *(Does not return anything)*
-
----
-
-### Add
-`(childControl)`
-**Parameters:**
-
-| Name | Type | Optional | Description |
-| --- | --- | --- | --- |
-| `childControl` | `PyBaseControl` | ❌ No |  |
+| `childControl` | `object` | ❌ No | The control to add as a child |
 
 **Return Type:** `void` *(Does not return anything)*
 
