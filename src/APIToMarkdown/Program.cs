@@ -559,10 +559,10 @@ public static class GenDoc
             "DateTime" or "System.DateTime" => "datetime", // Requires 'import datetime'
             "Guid" or "System.Guid" => "str", // Often represented as string or UUID
 
-            "Gump" => "Gump", // Custom types
-            "Control" or "ScrollArea" or "SimpleProgressBar" or "TextBox" or "TTFTextInputField" or "GumpPic" => "PyControl",
-            "RadioButton" or "NiceButton" or "Button" or "ResizableStaticPic" or "AlphaBlendControl" => "PyControl",
-            "Label" or "Checkbox" => "PyControl",
+            "Gump" => "PyBaseGump", // Custom types
+            "Control" or "ScrollArea" or "SimpleProgressBar" or "TextBox" or "TTFTextInputField" or "GumpPic" => "PyBaseControl",
+            "RadioButton" or "NiceButton" or "Button" or "ResizableStaticPic" or "AlphaBlendControl" or "Label" => "PyBaseControl",
+            "Checkbox" => "PyCheckbox",
             "Item" or "PyItem" => "PyItem",
             "Mobile" or "PyMobile" => "PyMobile",
             "Skill" => "Skill",
@@ -572,6 +572,8 @@ public static class GenDoc
             "GameObject" or "PyGameObject" => "PyGameObject",
             "PyProfile" => "PyProfile",
             "PyControlDropDown" => "PyControlDropDown",
+            "PyBaseControl" => "PyBaseControl",
+            "PyBaseGump" => "PyBaseGump",
 
             // Fallback for unknown types
             _ => noMatch

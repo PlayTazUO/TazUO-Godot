@@ -85,12 +85,9 @@ namespace ClassicUO.Game.Managers
 
             if (cont == null) return;
 
-            if (cont.Distance <= ProfileManager.CurrentProfile.AutoOpenCorpseRange)
+            for (LinkedObject i = cont.Items; i != null; i = i.Next)
             {
-                for (LinkedObject i = cont.Items; i != null; i = i.Next)
-                {
-                    CheckAndLoot((Item)i);
-                }
+                CheckAndLoot((Item)i);
             }
         }
 
