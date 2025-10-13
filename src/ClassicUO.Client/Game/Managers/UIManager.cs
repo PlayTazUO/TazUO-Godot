@@ -347,11 +347,11 @@ namespace ClassicUO.Game.Managers
         {
             for (LinkedListNode<Gump> last = Gumps.Last; last != null; last = last.Previous)
             {
-                Control c = last.Value;
+                Gump c = last.Value;
 
                 if (!c.IsDisposed && c.ServerSerial == serial)
                 {
-                    return c as Gump;
+                    return c;
                 }
             }
 

@@ -6840,31 +6840,19 @@ sealed class PacketHandlers
             return null;
         }
 
-        Gump gump = null;
+        Gump gump = UIManager.GetGumpServer(gumpID);
+        if (gump != null && gump.LocalSerial == sender)
+        {
+            gump.Dispose();
+            gump = null;
+        }
+
         bool mustBeAdded = true;
 
         if (UIManager.GetGumpCachePosition(gumpID, out Point pos))
         {
             x = pos.X;
             y = pos.Y;
-
-            for (
-                LinkedListNode<Gump> last = UIManager.Gumps.Last;
-                last != null;
-                last = last.Previous
-            )
-            {
-                Control g = last.Value;
-
-                if (!g.IsDisposed && g.LocalSerial == sender && g.ServerSerial == gumpID)
-                {
-                    g.Clear();
-                    gump = g as Gump;
-                    mustBeAdded = false;
-
-                    break;
-                }
-            }
         }
         else
         {
