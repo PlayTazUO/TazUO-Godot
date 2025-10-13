@@ -24,8 +24,7 @@ namespace ClassicUO.Game.UI.Gumps
         private GumpPic _combatBook,
             _racialAbilitiesBook;
         private HitBox _hitBox;
-        private bool _isWarMode,
-            _isMinimized;
+        private bool _isWarMode, _isMinimized;
 
         private PaperDollInteractable _paperDollInteractable;
         private GumpPic _partyManifestPic;
@@ -476,6 +475,7 @@ namespace ClassicUO.Game.UI.Gumps
                     _warModeBtn.ButtonGraphicNormal = btngumps[0];
                     _warModeBtn.ButtonGraphicPressed = btngumps[1];
                     _warModeBtn.ButtonGraphicOver = btngumps[2];
+                    _warModeBtn.ScaleWidthAndHeight(Scale).SetInternalScale(Scale);
                 }
 
                 if(ProfileManager.CurrentProfile != null)

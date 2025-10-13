@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: BSD-2-Clause
 
 
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using ClassicUO.Configuration;
@@ -8,15 +10,21 @@ using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Utility;
+using ClassicUO.Utility.Logging;
 using Microsoft.Xna.Framework;
-using System;
 
 namespace ClassicUO.Game.Managers
 {
     public sealed class ContainerManager
     {
-        private readonly Dictionary<ushort, ContainerData> _data =
-            new Dictionary<ushort, ContainerData>();
+        // Named constants for magic numbers
+        private const int DEFAULT_CONTAINER_OFFSET = 40;
+        private const int FALLBACK_CONTAINER_BOUNDS_LEFT = 44;
+        private const int FALLBACK_CONTAINER_BOUNDS_TOP = 65;
+        private const int FALLBACK_CONTAINER_BOUNDS_WIDTH = 186;
+        private const int FALLBACK_CONTAINER_BOUNDS_HEIGHT = 159;
+
+        private readonly ConcurrentDictionary<ushort, ContainerData> _data = new();
 
         private readonly World _world;
 
@@ -26,18 +34,27 @@ namespace ClassicUO.Game.Managers
             BuildContainerFile(false);
         }
 
-        public int DefaultX { get; } = 40;
-        public int DefaultY { get; } = 40;
+        public int DefaultX { get; } = DEFAULT_CONTAINER_OFFSET;
+        public int DefaultY { get; } = DEFAULT_CONTAINER_OFFSET;
 
-        public int X { get; private set; } = 40;
-        public int Y { get; private set; } = 40;
+        public int X { get; private set; } = DEFAULT_CONTAINER_OFFSET;
+        public int Y { get; private set; } = DEFAULT_CONTAINER_OFFSET;
 
         public ContainerData Get(ushort graphic)
         {
             //if the server requests for a non present gump in container data dictionary, create it, but without any particular sound.
             if (!_data.TryGetValue(graphic, out ContainerData value))
             {
-                _data[graphic] = value = new ContainerData(graphic, 0, 0, 44, 65, 186, 159);
+                value = new ContainerData(
+                    graphic,
+                    0,
+                    0,
+                    FALLBACK_CONTAINER_BOUNDS_LEFT,
+                    FALLBACK_CONTAINER_BOUNDS_TOP,
+                    FALLBACK_CONTAINER_BOUNDS_WIDTH,
+                    FALLBACK_CONTAINER_BOUNDS_HEIGHT
+                );
+                _data[graphic] = value;
             }
 
             return value;
@@ -171,7 +188,7 @@ namespace ClassicUO.Game.Managers
         {
             Item item = _world.Items.Get(serial);
 
-            if (item == null)
+            if (item == null || _world.Player == null)
             {
                 return;
             }
@@ -182,13 +199,13 @@ namespace ClassicUO.Game.Managers
             if (bank != null && serial == bank)
             {
                 // open bank near player
-                X = _world.Player.RealScreenPosition.X + camera.Bounds.X + 40;
+                X = _world.Player.RealScreenPosition.X + camera.Bounds.X + DEFAULT_CONTAINER_OFFSET;
                 Y = _world.Player.RealScreenPosition.Y + camera.Bounds.Y - (height >> 1);
             }
             else if (item.OnGround)
             {
                 // item is in world
-                X = item.RealScreenPosition.X + camera.Bounds.X + 40;
+                X = item.RealScreenPosition.X + camera.Bounds.X + DEFAULT_CONTAINER_OFFSET;
                 Y = item.RealScreenPosition.Y + camera.Bounds.Y - (height >> 1);
             }
             else if (SerialHelper.IsMobile(item.Container))
@@ -198,7 +215,7 @@ namespace ClassicUO.Game.Managers
 
                 if (mobile != null)
                 {
-                    X = mobile.RealScreenPosition.X + camera.Bounds.X + 40;
+                    X = mobile.RealScreenPosition.X + camera.Bounds.X + DEFAULT_CONTAINER_OFFSET;
                     Y = mobile.RealScreenPosition.Y + camera.Bounds.Y - (height >> 1);
                 }
             }
@@ -226,101 +243,108 @@ namespace ClassicUO.Game.Managers
 
             path = Path.Combine(path, "containers.txt");
 
+            // If file doesn't exist or force rebuild, create default data and write to file
             if (!File.Exists(path) || force)
             {
                 MakeDefault();
 
-                using var stream2 = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-                using var writer = new StreamWriter(stream2);
-                writer.BaseStream.Seek(0, SeekOrigin.Begin);
-
-                writer.WriteLine("# FORMAT");
-
-                writer.WriteLine(
-                    "# GRAPHIC OPEN_SOUND_ID CLOSE_SOUND_ID LEFT TOP RIGHT BOTTOM ICONIZED_GRAPHIC [0 if not exists] MINIMIZER_AREA_X [0 if not exists] MINIMIZER_AREA_Y [0 if not exists]"
-                );
-
-                writer.WriteLine(
-                    "# LEFT = X,  TOP = Y,  RIGHT = X + WIDTH,  BOTTOM = Y + HEIGHT"
-                );
-                writer.WriteLine();
-                writer.WriteLine();
-
-                foreach (KeyValuePair<ushort, ContainerData> e in _data)
+                using (var stream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Read))
+                using (var writer = new StreamWriter(stream))
                 {
+                    writer.WriteLine("# FORMAT");
                     writer.WriteLine(
-                        $"{e.Value.Graphic} {e.Value.OpenSound} {e.Value.ClosedSound} {e.Value.Bounds.X} {e.Value.Bounds.Y} {e.Value.Bounds.Width} {e.Value.Bounds.Height} {e.Value.IconizedGraphic} {e.Value.MinimizerArea.X} {e.Value.MinimizerArea.Y}"
+                        "# GRAPHIC OPEN_SOUND_ID CLOSE_SOUND_ID LEFT TOP RIGHT BOTTOM ICONIZED_GRAPHIC [0 if not exists] MINIMIZER_AREA_X [0 if not exists] MINIMIZER_AREA_Y [0 if not exists]"
                     );
-                }
+                    writer.WriteLine(
+                        "# LEFT = X,  TOP = Y,  RIGHT = X + WIDTH,  BOTTOM = Y + HEIGHT"
+                    );
+                    writer.WriteLine();
+                    writer.WriteLine();
 
-                writer.Close();
-            }
-
-            _data.Clear();
-
-            using var stream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-            using var reader = new StreamReader(stream);
-            reader.BaseStream.Seek(0, SeekOrigin.Begin);
-            var containersParser = new TextFileParser(
-                reader.ReadToEnd(),
-                new[] { ' ', '\t', ',' },
-                new[] { '#', ';' },
-                new[] { '"', '"' }
-            );
-
-            int line = 0;
-
-            while (!containersParser.IsEOF())
-            {
-                List<string> ss = containersParser.ReadTokens();
-
-                if (ss != null && ss.Count != 0)
-                {
-                    if (
-                        ss.Count >= 7
-                        && ushort.TryParse(ss[0], out ushort graphic)
-                        && ushort.TryParse(ss[1], out ushort open_sound_id)
-                        && ushort.TryParse(ss[2], out ushort close_sound_id)
-                        && int.TryParse(ss[3], out int x)
-                        && int.TryParse(ss[4], out int y)
-                        && int.TryParse(ss[5], out int w)
-                        && int.TryParse(ss[6], out int h)
-                    )
+                    foreach (KeyValuePair<ushort, ContainerData> e in _data)
                     {
-                        ushort iconized_graphic = 0;
-                        int minimizer_x = 0,
-                            minimizer_y = 0;
-
-                        if (ss.Count >= 8 && ushort.TryParse(ss[7], out iconized_graphic))
-                        {
-                            if (ss.Count >= 9 && int.TryParse(ss[8], out minimizer_x))
-                            {
-                                if (ss.Count >= 10 && int.TryParse(ss[9], out minimizer_y))
-                                {
-                                    // nice!
-                                }
-                            }
-                        }
-
-                        _data[graphic] = new ContainerData(
-                            graphic,
-                            open_sound_id,
-                            close_sound_id,
-                            x,
-                            y,
-                            w,
-                            h,
-                            iconized_graphic,
-                            minimizer_x,
-                            minimizer_y
+                        writer.WriteLine(
+                            $"{e.Value.Graphic} {e.Value.OpenSound} {e.Value.ClosedSound} {e.Value.Bounds.X} {e.Value.Bounds.Y} {e.Value.Bounds.Width} {e.Value.Bounds.Height} {e.Value.IconizedGraphic} {e.Value.MinimizerArea.X} {e.Value.MinimizerArea.Y}"
                         );
-                    } else
-                    {
-                        Console.WriteLine($"Error parsing container data at line {line}");
                     }
                 }
 
-                line++;
+                // Data is already in _data from MakeDefault(), no need to read file
+                return;
+            }
+
+            // File exists and no force rebuild, read from file
+            _data.Clear();
+
+            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var reader = new StreamReader(stream))
+            {
+                var containersParser = new TextFileParser(
+                    reader.ReadToEnd(),
+                    new[] { ' ', '\t', ',' },
+                    new[] { '#', ';' },
+                    new[] { '"', '"' }
+                );
+
+                int line = 0;
+
+                while (!containersParser.IsEOF())
+                {
+                    List<string> ss = containersParser.ReadTokens();
+
+                    if (ss != null && ss.Count != 0)
+                    {
+                        if (
+                            ss.Count >= 7
+                            && ushort.TryParse(ss[0], out ushort graphic)
+                            && ushort.TryParse(ss[1], out ushort openSoundId)
+                            && ushort.TryParse(ss[2], out ushort closeSoundId)
+                            && int.TryParse(ss[3], out int x)
+                            && int.TryParse(ss[4], out int y)
+                            && int.TryParse(ss[5], out int w)
+                            && int.TryParse(ss[6], out int h)
+                        )
+                        {
+                            ushort iconizedGraphic = 0;
+                            int minimizerX = 0;
+                            int minimizerY = 0;
+
+                            if (ss.Count >= 8)
+                            {
+                                ushort.TryParse(ss[7], out iconizedGraphic);
+                            }
+
+                            if (ss.Count >= 9)
+                            {
+                                int.TryParse(ss[8], out minimizerX);
+                            }
+
+                            if (ss.Count >= 10)
+                            {
+                                int.TryParse(ss[9], out minimizerY);
+                            }
+
+                            _data[graphic] = new ContainerData(
+                                graphic,
+                                openSoundId,
+                                closeSoundId,
+                                x,
+                                y,
+                                w,
+                                h,
+                                iconizedGraphic,
+                                minimizerX,
+                                minimizerY
+                            );
+                        }
+                        else
+                        {
+                            Log.Warn($"Error parsing container data at line {line}: {string.Join(" ", ss)}");
+                        }
+                    }
+
+                    line++;
+                }
             }
         }
 
@@ -518,10 +542,6 @@ namespace ClassicUO.Game.Managers
             _data[0x9CE5] = new ContainerData(0x9CE5, 0x0000, 0x0000, 44, 65, 186, 159);
 
             _data[0x9CE7] = new ContainerData(0x9CE7, 0x0000, 0x0000, 44, 65, 186, 159);
-
-            //
-            //    0x2A63= new ContainerData(0x2A63, 0x0187, 0x01c9, 29, 34, 137, 128)//for this particular gump area is bugged also in original client, as it is similar to the bag, probably this is an unfinished one
-            //}
         }
     }
 }

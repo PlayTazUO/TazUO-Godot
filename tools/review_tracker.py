@@ -16,13 +16,17 @@ from pathlib import Path
 class ReviewTracker:
     """Manages the review tracking database and operations."""
 
-    def __init__(self, db_path="review_tracker.db"):
+    def __init__(self, db_path=None):
         """
         Initialize the review tracker with a database connection.
 
         Args:
-            db_path: Path to the SQLite database file
+            db_path: Path to the SQLite database file (defaults to review_tracker.db in the script's directory)
         """
+        if db_path is None:
+            # Default to script's directory, not current working directory
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            db_path = os.path.join(script_dir, "review_tracker.db")
         self.db_path = db_path
         self.conn = None
         self._init_database()
@@ -46,6 +50,7 @@ class ReviewTracker:
     def scan_directory(self, directory):
         """
         Recursively scan directory for *.cs files and add them to the database.
+        Files are stored with relative paths from the scan directory.
 
         Args:
             directory: Root directory to scan
@@ -67,7 +72,9 @@ class ReviewTracker:
             for file in files:
                 if file.endswith('.cs'):
                     full_path = os.path.join(root, file)
-                    cs_files.append(full_path)
+                    # Store relative path instead of absolute
+                    relative_path = os.path.relpath(full_path, directory)
+                    cs_files.append(relative_path)
 
         if not cs_files:
             print("✗ No .cs files found")
@@ -99,18 +106,30 @@ class ReviewTracker:
     def update_review(self, file_path):
         """
         Mark a file as reviewed with the current timestamp.
+        Accepts either relative or absolute paths.
 
         Args:
-            file_path: Path to the file to mark as reviewed
+            file_path: Path to the file to mark as reviewed (relative or absolute)
         """
-        file_path = os.path.abspath(file_path)
-
         cursor = self.conn.cursor()
         current_time = datetime.now().isoformat()
 
-        # Check if file exists in database
+        # Try the path as-is first (handles relative paths)
         cursor.execute("SELECT path FROM reviews WHERE path = ?", (file_path,))
         result = cursor.fetchone()
+
+        # If not found and it's an absolute path, try all relative paths
+        if result is None and os.path.isabs(file_path):
+            # Get all paths from database and check if any match
+            cursor.execute("SELECT path FROM reviews")
+            all_paths = cursor.fetchall()
+
+            for (db_path,) in all_paths:
+                # Check if the absolute version of the db path matches
+                if os.path.abspath(db_path) == os.path.abspath(file_path):
+                    file_path = db_path
+                    result = (db_path,)
+                    break
 
         if result is None:
             print(f"✗ Error: '{file_path}' is not in the database")
@@ -130,20 +149,22 @@ class ReviewTracker:
     def get_next_file(self):
         """
         Get the next file to review based on review priority.
+        Selection is randomized within each priority tier.
 
         Priority:
-        1. Files never reviewed (last_reviewed IS NULL)
-        2. Files with oldest review date
+        1. Files never reviewed (last_reviewed IS NULL) - random selection
+        2. Files with oldest review date - random selection
 
         Returns:
             Path to the next file to review, or None if no files found
         """
         cursor = self.conn.cursor()
 
-        # First, try to get files that have never been reviewed
+        # First, try to get files that have never been reviewed (random)
         cursor.execute("""
             SELECT path FROM reviews
             WHERE last_reviewed IS NULL
+            ORDER BY RANDOM()
             LIMIT 1
         """)
 
@@ -155,10 +176,10 @@ class ReviewTracker:
             print(f"  {file_path}")
             return file_path
 
-        # If all files have been reviewed, get the oldest one
+        # If all files have been reviewed, get a random one from the oldest batch
         cursor.execute("""
             SELECT path, last_reviewed FROM reviews
-            ORDER BY last_reviewed ASC
+            ORDER BY last_reviewed ASC, RANDOM()
             LIMIT 1
         """)
 
@@ -233,7 +254,7 @@ Examples:
     group.add_argument(
         '-next',
         action='store_true',
-        help='Get the next file to review (prioritizes never-reviewed files)'
+        help='Get the next file to review (random selection, prioritizes never-reviewed files)'
     )
     group.add_argument(
         '-stats',
@@ -244,8 +265,8 @@ Examples:
     parser.add_argument(
         '-db',
         metavar='DB_PATH',
-        default='review_tracker.db',
-        help='Path to database file (default: review_tracker.db)'
+        default=None,
+        help='Path to database file (default: review_tracker.db in script directory)'
     )
 
     args = parser.parse_args()
@@ -294,7 +315,8 @@ through a codebase.
 ### Basic Commands
 
 #### Scan Directory
-Recursively finds all `.cs` files in a directory and adds them to the tracking database:
+Recursively finds all `.cs` files in a directory and adds them to the tracking database.
+Files are stored with relative paths from the scan directory for better portability.
 ```bash
 python review_tracker.py -scan /path/to/project
 ```
@@ -305,18 +327,20 @@ python review_tracker.py -scan ../src
 ```
 
 #### Update Review Status
-Mark a specific file as reviewed (records current timestamp):
+Mark a specific file as reviewed (records current timestamp).
+Accepts both relative and absolute paths.
 ```bash
 python review_tracker.py -update /path/to/file.cs
 ```
 
 Example:
 ```bash
-python review_tracker.py -update ../src/ClassicUO.Client/Game/GameController.cs
+python review_tracker.py -update ClassicUO.Client/Game/GameController.cs
 ```
 
 #### Get Next File
-Get the next file that needs review (prioritizes never-reviewed files, then oldest reviews):
+Get the next file that needs review. Selection is randomized within priority tiers
+(prioritizes never-reviewed files, then oldest reviews):
 ```bash
 python review_tracker.py -next
 ```
@@ -344,7 +368,7 @@ python review_tracker.py -db /path/to/custom.db -scan ../src
    python review_tracker.py -scan ../src
    ```
 
-2. **Start Reviewing**: Get the next file
+2. **Start Reviewing**: Get the next file (random selection)
    ```bash
    python review_tracker.py -next
    ```
@@ -367,7 +391,7 @@ The tool uses a simple SQLite database with one table:
 
 ```sql
 CREATE TABLE reviews (
-    path TEXT PRIMARY KEY,           -- Full path to the file
+    path TEXT PRIMARY KEY,           -- Relative path to the file
     last_reviewed DATETIME           -- ISO format timestamp or NULL
 );
 ```
@@ -376,7 +400,9 @@ CREATE TABLE reviews (
 
 - **Automatic Filtering**: Skips common non-source directories (.git, .vs, bin, obj, packages)
 - **Duplicate Prevention**: Won't add the same file twice
+- **Random Selection**: Files are selected randomly within priority tiers to avoid bias
 - **Priority System**: Files never reviewed are prioritized over old reviews
+- **Relative Paths**: Files are stored with relative paths for better portability
 - **Simple Storage**: Uses SQLite - no external database required
 - **Portable**: Pure Python with no dependencies outside standard library
 
@@ -385,5 +411,6 @@ CREATE TABLE reviews (
 - Run the scan command periodically to pick up new files
 - Use `-stats` to track your progress
 - The database is portable - you can share it with team members
-- Files are identified by absolute path, so moving the database requires rescanning
+- Files are stored with relative paths, making the database more portable across systems
+- Random selection helps distribute reviews more evenly across the codebase
 """
