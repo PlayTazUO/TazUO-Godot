@@ -170,7 +170,7 @@ namespace ClassicUO.Utility
                     if (trim)
                         token = token.Trim();
 
-                    if (token.Length > 0)
+                    if (!string.IsNullOrEmpty(token))
                         result.Add(token);
 
                     _sb.Clear();
