@@ -9,6 +9,7 @@ using ClassicUO.Input;
 using ClassicUO.Renderer;
 using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -16,7 +17,7 @@ namespace ClassicUO.Game.Managers
 {
     internal static class UIManager
     {
-        private static readonly Dictionary<uint, Point> _gumpPositionCache = new Dictionary<uint, Point>();
+        private static readonly ConcurrentDictionary<uint, Point> _gumpPositionCache = new();
         private static readonly Control[] _mouseDownControls = new Control[0xFF];
 
 
@@ -275,7 +276,7 @@ namespace ClassicUO.Game.Managers
 
         public static bool RemovePosition(uint serverSerial)
         {
-            return _gumpPositionCache.Remove(serverSerial);
+            return _gumpPositionCache.Remove(serverSerial, out _);
         }
 
         public static bool GetGumpCachePosition(uint id, out Point pos)
