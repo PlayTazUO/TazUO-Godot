@@ -3,7 +3,6 @@
 using System;
 using System.IO;
 using System.IO.Compression;
-using ZLibNative;
 
 namespace ClassicUO.Utility
 {
@@ -21,11 +20,18 @@ namespace ClassicUO.Utility
         {
             using (MemoryStream stream = new MemoryStream(source, sourceStart, sourceLength - offset, true))
             {
-                using (ZLIBStream ds = new ZLIBStream(stream, CompressionMode.Decompress))
+                using (ZLibStream ds = new ZLibStream(stream, CompressionMode.Decompress))
                 {
-                    for (int i = 0, b = ds.ReadByte(); i < length && b >= 0; i++, b = ds.ReadByte())
+                    int totalRead = 0;
+
+                    while (totalRead < length)
                     {
-                        dest[i] = (byte) b;
+                        // Read directly into destination buffer in chunks
+                        int toRead = Math.Min(4096, length - totalRead);
+                        int bytesRead = ds.Read(dest, totalRead, toRead);
+                        if (bytesRead <= 0)
+                            break;
+                        totalRead += bytesRead;
                     }
                 }
             }
@@ -33,17 +39,23 @@ namespace ClassicUO.Utility
 
         public static unsafe void Decompress(IntPtr source, int sourceLength, int offset, IntPtr dest, int length)
         {
-            using (UnmanagedMemoryStream stream = new UnmanagedMemoryStream((byte*) source.ToPointer(), sourceLength - offset))
-            {
-                using (ZLIBStream ds = new ZLIBStream(stream, CompressionMode.Decompress))
-                {
-                    byte* dstPtr = (byte*) dest.ToPointer();
+            // Use a temporary buffer to leverage the optimized byte array version
+            byte[] tempDest = new byte[length];
+            byte[] tempSource = new byte[sourceLength - offset];
 
-                    for (int i = 0, b = ds.ReadByte(); i < length && b >= 0; i++, b = ds.ReadByte())
-                    {
-                        dstPtr[i] = (byte) b;
-                    }
-                }
+            // Copy from unmanaged to managed
+            fixed (byte* tempSourcePtr = tempSource)
+            {
+                Buffer.MemoryCopy((byte*)source.ToPointer(), tempSourcePtr, tempSource.Length, tempSource.Length);
+            }
+
+            // Decompress using the byte array version
+            Decompress(tempSource, 0, sourceLength, offset, tempDest, length);
+
+            // Copy result back to unmanaged
+            fixed (byte* tempDestPtr = tempDest)
+            {
+                Buffer.MemoryCopy(tempDestPtr, (byte*)dest.ToPointer(), length, length);
             }
         }
 
@@ -51,7 +63,7 @@ namespace ClassicUO.Utility
         {
             using (MemoryStream stream = new MemoryStream(dest, true))
             {
-                using (ZLIBStream ds = new ZLIBStream(stream, CompressionMode.Compress, true))
+                using (ZLibStream ds = new ZLibStream(stream, CompressionMode.Compress, true))
                 {
                     ds.Write(source, 0, source.Length);
                     ds.Flush();

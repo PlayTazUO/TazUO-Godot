@@ -544,6 +544,7 @@ namespace ClassicUO.Configuration
             public string EnableHouseTransparency { get; set; } = "Enable forced house transparency";
             public string HouseTransparencyTileHue { get; set; } = "House transparency tile hue";
             public string EnableASyncMapLoading { get; set; } = "Enable ASync map loading";
+            public string ForceManagedZlib { get; set; } = "Force using a managed zlib";
             #endregion
 
             #region Tooltips

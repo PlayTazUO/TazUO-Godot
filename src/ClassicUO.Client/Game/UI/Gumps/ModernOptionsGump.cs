@@ -3596,6 +3596,19 @@ namespace ClassicUO.Game.UI.Gumps
                 true, page
             );
 
+            content.BlankLine();
+
+            content.AddToRight
+            (
+                c = new CheckboxWithLabel(lang.GetTazUO.ForceManagedZlib, isChecked: ZLib.ManagedZlibForced, valueChanged: (e) =>
+                {
+                    _ = Client.Settings.SetAsync(SettingsScope.Global, Constants.SqlSettings.MANAGED_ZLIB, e);
+                    ZLib.SetForceManagedZlib(e);
+                }),
+                true, page
+            );
+            c.SetTooltip("This may impact performance negatively, but some unix systems have issues using unmanaged zlibs.");
+
             #region HideHouses
             content.BlankLine();
 

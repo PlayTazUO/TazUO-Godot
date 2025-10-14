@@ -10,11 +10,18 @@ namespace ClassicUO.Utility
     {
         // thanks ServUO :)
 
-        private static readonly ICompressor _compressor;
+        private static ICompressor _compressor;
+
+        public static bool ManagedZlibForced { get; private set; } = false;
 
         static ZLib()
         {
-            if (Environment.Is64BitProcess)
+            SetupCompressor();
+        }
+
+        private static void SetupCompressor()
+        {
+            if (Environment.Is64BitProcess && !ManagedZlibForced)
             {
                 if(PlatformHelper.IsWindows)
                 {
@@ -29,6 +36,12 @@ namespace ClassicUO.Utility
             {
                 _compressor = new ManagedUniversal();
             }
+        }
+
+        public static void SetForceManagedZlib(bool enabled)
+        {
+            ManagedZlibForced = enabled;
+            SetupCompressor();
         }
 
         public static ZLibError Decompress(byte[] source, int offset, byte[] dest, int length)

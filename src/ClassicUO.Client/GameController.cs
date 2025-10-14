@@ -94,6 +94,7 @@ namespace ClassicUO
 
         protected override void Initialize()
         {
+            PreloadSettings();
             if (GraphicManager.GraphicsDevice.Adapter.IsProfileSupported(GraphicsProfile.HiDef))
             {
                 GraphicManager.GraphicsProfile = GraphicsProfile.HiDef;
@@ -122,6 +123,12 @@ namespace ClassicUO
             }
 
             base.Initialize();
+        }
+
+        private void PreloadSettings()
+        {
+            _ = Client.Settings.GetAsyncOnMainThread(SettingsScope.Global, Constants.SqlSettings.MANAGED_ZLIB, false,
+                (b) => { if(b) ZLib.SetForceManagedZlib(b); });
         }
 
         private const int MAX_PACKETS_PER_FRAME = 25;

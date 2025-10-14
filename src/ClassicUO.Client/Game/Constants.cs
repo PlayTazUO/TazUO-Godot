@@ -112,5 +112,10 @@ namespace ClassicUO.Game
             false, // backpack
             true, true, true, false, false, false, false, false
         };
+
+        public static class SqlSettings
+        {
+            public const string MANAGED_ZLIB = "USE_MANAGED_ZLIB";
+        }
     }
 }
