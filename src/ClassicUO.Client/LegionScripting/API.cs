@@ -3586,14 +3586,24 @@ namespace ClassicUO.LegionScripting
         /// <param name="onClick">The callback function</param>
         /// <param name="leftOnly">Only accept left mouse clicks?</param>
         /// <returns>Returns the control so methods can be chained.</returns>
-        public Control AddControlOnClick(Control control, object onClick, bool leftOnly = true)
+        public object AddControlOnClick(object control, object onClick, bool leftOnly = true)
         {
             if (control == null || onClick == null || !engine.Operations.IsCallable(onClick))
                 return control;
 
-            control.AcceptMouseInput = true;
+            Control wControl = null;
 
-            control.MouseUp += (s, e) =>
+            if(control is Control)
+                wControl = (Control)control;
+            else if (control is PyBaseControl pbc && pbc.Control != null)
+                wControl = pbc.Control;
+
+            if (wControl == null)
+                return control;
+
+            wControl.AcceptMouseInput = true;
+
+            wControl.MouseUp += (s, e) =>
             {
                 if (leftOnly && e.Button != MouseButtonType.Left)
                     return;
@@ -3635,12 +3645,12 @@ namespace ClassicUO.LegionScripting
         /// <param name="control"></param>
         /// <param name="onDispose"></param>
         /// <returns></returns>
-        public Control AddControlOnDisposed(Control control, object onDispose)
+        public PyBaseControl AddControlOnDisposed(PyBaseControl control, object onDispose)
         {
-            if (control == null || onDispose == null || !engine.Operations.IsCallable(onDispose))
+            if (control == null || onDispose == null || control.Control == null || !engine.Operations.IsCallable(onDispose))
                 return control;
 
-            control.Disposed += (s, e) =>
+            control.Control.Disposed += (s, e) =>
             {
                 this?.ScheduleCallback
                 (() =>

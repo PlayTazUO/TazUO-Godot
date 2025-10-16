@@ -29,6 +29,13 @@ description:  Python API wrapper for Gump (game window) objects in TazUO.  Provi
  Used in python API
 
 
+### `CanCloseWithRightClick`
+
+**Type:** `bool`
+
+ Gets or Sets the ability to close the gump with a right click
+
+
 ### `Gump`
 
 **Type:** `Gump`

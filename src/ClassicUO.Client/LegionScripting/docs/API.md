@@ -21,7 +21,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 [Additional notes](../notes/)  
 
-*This was generated on `10/13/25`.*
+*This was generated on `10/15/25`.*
 
 ## Properties
 ### `JournalEntries`
@@ -3026,11 +3026,11 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 | Name | Type | Optional | Description |
 | --- | --- | --- | --- |
-| `control` | `Control` | ❌ No | The control listening for clicks |
+| `control` | `object` | ❌ No | The control listening for clicks |
 | `onClick` | `object` | ❌ No | The callback function |
 | `leftOnly` | `bool` | ✅ Yes | Only accept left mouse clicks? |
 
-**Return Type:** `Control`
+**Return Type:** `object`
 
 ---
 
@@ -3056,10 +3056,10 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 | Name | Type | Optional | Description |
 | --- | --- | --- | --- |
-| `control` | `Control` | ❌ No |  |
+| `control` | `PyBaseControl` | ❌ No |  |
 | `onDispose` | `object` | ❌ No |  |
 
-**Return Type:** `Control`
+**Return Type:** `PyBaseControl`
 
 ---
 
