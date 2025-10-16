@@ -1,7 +1,6 @@
 using System;
 using ImGuiNET;
 using ClassicUO.Configuration;
-using System.Numerics;
 using ClassicUO.Network;
 
 namespace ClassicUO.Game.UI.ImGuiControls

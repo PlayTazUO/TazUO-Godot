@@ -45,15 +45,13 @@ namespace ClassicUO.Game.UI.ImGuiControls
                 return;
             }
 
-            bool open = true;
-
             // Draw tab bar
-            if (ImGui.BeginTabBar("TabMenuTabs", ImGuiTabBarFlags.Reorderable))
+            if (ImGui.BeginTabBar("TabMenuTabs", ImGuiTabBarFlags.None))
             {
                 for (int i = 0; i < _tabs.Count; i++)
                 {
                     TabItem tab = _tabs[i];
-                    if (ImGui.BeginTabItem(tab.Title, ref open))
+                    if (ImGui.BeginTabItem(tab.Title))
                     {
                         tab.DrawContent?.Invoke();
 

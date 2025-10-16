@@ -59,7 +59,7 @@ public class PyBaseGump(Gump gump) : PyBaseControl(gump), IPyGump
             if (!VerifyIntegrity())
                 return;
 
-            MainThreadQueue.EnqueueAction(() => Gump.CanCloseWithRightClick = value);
+            MainThreadQueue.InvokeOnMainThread(() => Gump.CanCloseWithRightClick = value);
         }
     }
 
