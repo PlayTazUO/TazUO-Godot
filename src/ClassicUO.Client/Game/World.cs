@@ -1,5 +1,6 @@
 ﻿// SPDX-License-Identifier: BSD-2-Clause
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ClassicUO.IO.Audio;
@@ -239,21 +240,27 @@ namespace ClassicUO.Game
         {
             Season = season;
 
-            foreach (Chunk chunk in Map.GetUsedChunks())
+            try
             {
-                for (int x = 0; x < 8; x++)
+                foreach (Chunk chunk in Map.GetUsedChunks())
                 {
-                    for (int y = 0; y < 8; y++)
+                    for (int x = 0; x < 8; x++)
                     {
-                        for (GameObject obj = chunk?.GetHeadObject(x, y); obj != null; obj = obj.TNext)
+                        for (int y = 0; y < 8; y++)
                         {
-                            obj.UpdateGraphicBySeason();
+                            for (GameObject obj = chunk?.GetHeadObject(x, y); obj != null; obj = obj.TNext)
+                            {
+                                obj.UpdateGraphicBySeason();
+                            }
                         }
                     }
                 }
             }
+            catch (Exception e)
+            {
+                Log.Error("Failed to change season: " + e);
+            }
 
-            //TODO(deccer): refactor this out into _audioPlayer.PlayMusic(...)
             UOMusic currentMusic = Client.Game.Audio.GetCurrentMusic();
             if (currentMusic == null || currentMusic.Index == Client.Game.Audio.LoginMusicIndex)
             {

@@ -59,6 +59,8 @@ namespace ClassicUO.Game.Managers
             if (e.Buff.Type == BuffIconType.Healing)
             {
                 HasBandagingBuff = false;
+                if(CheckForBuff && Time.Ticks >= _nextBandageTime) //Add small delay after healing buff is removed
+                    _nextBandageTime = Time.Ticks + AsyncNetClient.Socket.Statistics.Ping;
             }
         }
 

@@ -1513,7 +1513,14 @@ namespace ClassicUO.LegionScripting
         /// ```
         /// </summary>
         /// <returns>true/false</returns>
-        public bool Pathfinding() => MainThreadQueue.InvokeOnMainThread(() => World.Player.Pathfinder.AutoWalking);
+        public bool Pathfinding() => MainThreadQueue.InvokeOnMainThread(() =>
+            {
+                if (World == null || World.Player == null)
+                    return false;
+
+                return World.Player.Pathfinder.AutoWalking;
+            }
+        );
 
         /// <summary>
         /// Cancel pathfinding.
