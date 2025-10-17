@@ -1017,7 +1017,7 @@ internal static class GameActions
 
             // Record action for script recording
             var name = SpellDefinition.FullIndexGetSpell(index).Name;
-            ClassicUO.LegionScripting.ScriptRecorder.Instance.RecordCastSpell(name);
+            ScriptRecorder.Instance.RecordCastSpell(name);
             ScriptingInfoGump.AddOrUpdateInfo("Last Spell", name);
         }
     }
@@ -1033,7 +1033,7 @@ internal static class GameActions
         if (!string.IsNullOrEmpty(name) && SpellDefinition.TryGetSpellFromName(name, out var spellDef))
         {
                 // Record action for script recording
-                ClassicUO.LegionScripting.ScriptRecorder.Instance.RecordCastSpell(name);
+                ScriptRecorder.Instance.RecordCastSpell(name);
                 ScriptingInfoGump.AddOrUpdateInfo("Last Spell", name);
 
             CastSpell(spellDef.ID);
