@@ -504,6 +504,10 @@ namespace ClassicUO
 
                         break;
 
+                    case "zlib":
+                        ZLib.SetForceManagedZlib(true);
+
+                        break;
                 }
             }
         }
