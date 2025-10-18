@@ -21,7 +21,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 [Additional notes](../notes/)  
 
-*This was generated on `10/15/25`.*
+*This was generated on `10/17/25`.*
 
 ## Properties
 ### `JournalEntries`
@@ -2942,7 +2942,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 | `width` | `int` | ❌ No |  |
 | `height` | `int` | ❌ No |  |
 
-**Return Type:** `ScrollArea`
+**Return Type:** `PyScrollArea`
 
 ---
 

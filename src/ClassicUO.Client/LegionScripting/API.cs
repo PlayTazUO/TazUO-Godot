@@ -3518,9 +3518,9 @@ namespace ClassicUO.LegionScripting
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <returns></returns>
-        public ScrollArea CreateGumpScrollArea(int x, int y, int width, int height)
+        public PyScrollArea CreateGumpScrollArea(int x, int y, int width, int height)
         {
-            return new ScrollArea(x, y, width, height, true);
+            return new PyScrollArea(new ScrollArea(x, y, width, height, true));
         }
 
         /// <summary>

@@ -467,6 +467,9 @@ public static class GenDoc
         // Trim whitespace just in case
         csharpType = csharpType.Trim();
 
+        if (csharpType == "PythonList")
+            return "list";
+
         // 1. Handle array types (e.g., int[], string[], MyClass[])
         if (csharpType.EndsWith("[]"))
         {
@@ -481,13 +484,13 @@ public static class GenDoc
         // 2. Handle common generic collection types (List<T>, IEnumerable<T>, etc.)
         // This uses basic string parsing; more robust parsing might be needed for complex cases.
         string[] collectionPrefixes = {
-        "List<", "IList<", "IEnumerable<", "ICollection<", "Collection<",
-        "System.Collections.Generic.List<",
-        "System.Collections.Generic.IList<",
-        "System.Collections.Generic.IEnumerable<",
-        "System.Collections.Generic.ICollection<",
-        "System.Collections.ObjectModel.Collection<"
-    };
+            "List<", "IList<", "IEnumerable<", "ICollection<", "Collection<",
+            "System.Collections.Generic.List<",
+            "System.Collections.Generic.IList<",
+            "System.Collections.Generic.IEnumerable<",
+            "System.Collections.Generic.ICollection<",
+            "System.Collections.ObjectModel.Collection<"
+        };
 
         // Check if the type starts with one of the prefixes and ends with ">"
         string? matchedPrefix = collectionPrefixes.FirstOrDefault(prefix => csharpType.StartsWith(prefix));
@@ -574,6 +577,8 @@ public static class GenDoc
             "PyControlDropDown" => "PyControlDropDown",
             "PyBaseControl" => "PyBaseControl",
             "PyBaseGump" => "PyBaseGump",
+            "PyScrollArea" => "PyScrollArea",
+            "PythonList" => "List",
 
             // Fallback for unknown types
             _ => noMatch
