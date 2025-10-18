@@ -189,7 +189,7 @@ namespace ClassicUO.LegionScripting
             get
             {
                 if (backpack == null)
-                    backpack = MainThreadQueue.InvokeOnMainThread(() => World.Player.FindItemByLayer(Game.Data.Layer.Backpack));
+                    backpack = MainThreadQueue.InvokeOnMainThread(() => World.Player.Backpack);
 
                 return backpack;
             }
@@ -477,7 +477,7 @@ namespace ClassicUO.LegionScripting
 
                 if (i != null)
                 {
-                    var bp = World.Player.FindItemByLayer(Layer.Backpack);
+                    var bp = World.Player.Backpack;
                     MoveItemQueue.Instance.Enqueue(i, bp);
                     Found = i.Serial;
                     return new PyItem(i);
@@ -506,7 +506,7 @@ namespace ClassicUO.LegionScripting
 
                 if (i != null)
                 {
-                    var bp = World.Player.FindItemByLayer(Layer.Backpack);
+                    var bp = World.Player.Backpack;
                     MoveItemQueue.Instance.Enqueue(i, bp);
                     Found = i.Serial;
                     return new PyItem(i);
