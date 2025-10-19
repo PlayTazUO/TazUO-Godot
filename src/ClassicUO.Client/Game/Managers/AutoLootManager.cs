@@ -42,7 +42,7 @@ namespace ClassicUO.Game.Managers
 
         private HashSet<uint> quickContainsLookup = new ();
         private HashSet<uint> recentlyLooted = new();
-        private static Queue<(Item item, AutoLootConfigEntry entry)> lootItems = new ();
+        private static Queue<(uint item, AutoLootConfigEntry entry)> lootItems = new ();
         private List<AutoLootConfigEntry> autoLootItems = new ();
         private bool loaded = false;
         private readonly string savePath;
@@ -298,17 +298,22 @@ namespace ClassicUO.Game.Managers
                 return;
             }
 
-            var (moveItem, entry) = lootItems.Dequeue();
-            if (moveItem != null)
+            var (item, entry) = lootItems.Dequeue();
+            if (item != 0)
             {
                 if (lootItems.Count == 0) //Que emptied out
                     currentLootTotalCount = 0;
 
-                quickContainsLookup.Remove(moveItem.Serial);
+                quickContainsLookup.Remove(item);
+
+                Item moveItem = World.Items.Get(item);
+
+                if (moveItem == null)
+                    return;
 
                 CreateProgressBar();
 
-                if (progressBarGump != null && !progressBarGump.IsDisposed)
+                if (progressBarGump is { IsDisposed: false })
                 {
                     progressBarGump.CurrentPercentage = 1 - ((double)lootItems.Count / (double)currentLootTotalCount);
                 }
