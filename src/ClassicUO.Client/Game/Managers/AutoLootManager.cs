@@ -320,12 +320,9 @@ namespace ClassicUO.Game.Managers
                         return;
                 }
 
-                // Determine destination container with fallback logic:
-                // 1. Use per-item destination if set and container exists
-                // 2. Fall back to global grab bag if set and exists
-                // 3. Fall back to player's backpack
                 uint destinationSerial = 0;
 
+                //If this entry has a specific container, use it
                 if (entry != null && entry.DestinationContainer != 0)
                 {
                     Item itemDestContainer = World.Items.Get(entry.DestinationContainer);
@@ -356,6 +353,10 @@ namespace ClassicUO.Game.Managers
                 if (destinationSerial != 0)
                 {
                     MoveItemQueue.Instance?.Enqueue(moveItem.Serial, destinationSerial, moveItem.Amount, 0xFFFF, 0xFFFF);
+                }
+                else
+                {
+                    GameActions.Print("Could not find a container to loot into. Try setting a grab bag.");
                 }
 
                 nextLootTime = Time.Ticks + ProfileManager.CurrentProfile.MoveMultiObjectDelay;
