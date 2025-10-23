@@ -12,12 +12,13 @@ config_version=5
 
 config/name="TazUO-Godot"
 config/version="v0.0.1"
-config/features=PackedStringArray("4.5", "GL Compatibility")
+run/main_scene="uid://by2s03bm68f0q"
+config/features=PackedStringArray("4.5", "C#", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [dotnet]
 
-project/assembly_name="New Game Project"
+project/assembly_name="GoTazUO"
 
 [rendering]
 
