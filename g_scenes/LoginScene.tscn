@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://cpmtkdd8s75pi"]
+[gd_scene load_steps=3 format=3 uid="uid://cpmtkdd8s75pi"]
 
 [ext_resource type="Script" uid="uid://do37oqhn5ky5a" path="res://g_src/UI/Scenes/LoginScene.cs" id="1_20a1l"]
+[ext_resource type="Theme" uid="uid://crr42ydwkoidl" path="res://g_themes/MainTheme.tres" id="1_h22bi"]
 
 [node name="LoginScene" type="Control"]
 layout_mode = 3
@@ -9,4 +10,5 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_h22bi")
 script = ExtResource("1_20a1l")
