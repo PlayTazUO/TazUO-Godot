@@ -18,9 +18,9 @@ public class AssetHelper
         if(texture != null)
             return texture;
 
-        if (Client.Instance.fileManager != null)
+        if (Client.Instance.FileManager != null)
         {
-            var info = Client.Instance.fileManager.Gumps.GetGump(graphic);
+            var info = Client.Instance.FileManager.Gumps.GetGump(graphic);
 
             if (_textureCache.AddTexture(graphic, info.Pixels, info.Width, info.Height))
                 return _textureCache.GetTexture(graphic);
@@ -31,7 +31,7 @@ public class AssetHelper
 
     private static Texture2D GetGumpTextureNoCache(ushort graphic)
     {
-        var info = Client.Instance.fileManager.Gumps.GetGump(graphic);
+        var info = Client.Instance.FileManager.Gumps.GetGump(graphic);
         ReadOnlySpan<byte> byteSpan = MemoryMarshal.AsBytes(info.Pixels);
 
         using var tempImage = Image.CreateFromData(info.Width, info.Height, false, Image.Format.Rgba8, byteSpan);
