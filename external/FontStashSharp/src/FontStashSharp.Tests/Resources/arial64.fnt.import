@@ -1,0 +1,17 @@
+[remap]
+
+importer="font_data_bmfont"
+type="FontFile"
+uid="uid://ddyjl2fbadgsk"
+path="res://.godot/imported/arial64.fnt-1d162e13d390fe43c29a2f2aec56d7dc.fontdata"
+
+[deps]
+
+source_file="res://external/FontStashSharp/src/FontStashSharp.Tests/Resources/arial64.fnt"
+dest_files=["res://.godot/imported/arial64.fnt-1d162e13d390fe43c29a2f2aec56d7dc.fontdata"]
+
+[params]
+
+fallbacks=[]
+compress=true
+scaling_mode=2
