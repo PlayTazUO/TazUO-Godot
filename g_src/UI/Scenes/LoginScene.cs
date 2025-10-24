@@ -14,22 +14,32 @@ public partial class LoginScene : Control
 	public override void _Ready()
 	{
 		var rect = GetRect();
-		AddChild(new TiledGumpSprite(0x0E14, (int)rect.Size.X, (int)rect.Size.Y));
+		AddChild(new TiledGumpSprite(0x0E14, (int)rect.Size.X, (int)rect.Size.Y)); //Tiled BG
 
-		AddChild(new GumpSprite(0x014E));
+		AddChild(new GumpSprite(0x014E)); //Background
 
-		AddChild(new GumpSprite(0x05CA){Position = new Vector2(25, 240)}); //Quit
-
-		AddChild(new GumpSprite(0x05D0){Position = new Vector2(530, 125)}); //Credits
-		AddChild(new GumpSprite(0x5CD){Position = new Vector2(280, 365)}); //Arrow
+		UOGumpButton button;
+		AddChild(button = UOGumpButton.Get(0x05CA, 0x05C9, 0x05C8)); //Quit
+		button.Position = new Vector2(25, 240);
+		button.Pressed += () => GetTree()?.Quit();
+		
+		Control c;
+		AddChild(c = UOGumpButton.Get(0x05D0, 0x05CF, 0x5CE)); //Credits
+		c.Position = new Vector2(530, 125);
+		
+		AddChild(c = UOGumpButton.Get(0x5CD, 0x5CC, 0x5CB)); //Arrow
+		c.Position = new Vector2(280, 365);
+		
 		AddChild(new Label(){Text = $"UO Version: {Client.Instance.FileManager.Version}", Position = new(286, 465)}); //Version string
 		
 		//Check boxes that need to be turned into checkboxes
-		GumpSprite r;
-		AddChild(r = new GumpSprite(0x00D2) {Position = new(150, 417)});//Auto login
-		AddChild(new GumpSprite(0x00D2) {Position = new(r.Position.X + r.Width + 10, 417)});//Save Account
+		UOGumpCheckbox r;
+		AddChild(r = UOGumpCheckbox.Get(0x00D2, 0x00D3, true, "Auto login"));//Auto login
+		r.Position = new(150, 417);
+																	   
+		AddChild(r = UOGumpCheckbox.Get(0x00D2, 0x00D3, true, "Save Account"));//Save Account
+		r.Position = new(r.Position.X + r.GetSize().X + 10, 417);
 
-		UONineSliceControl c;
 		LineEdit l;
 		AddChild(c = new UONineSliceControl(0x0BB8, 210, 30) {Position = new(218, 283)});//Account bg
 		AddChild(l = new LineEdit(){Position = c.Position, Size = c.Size});

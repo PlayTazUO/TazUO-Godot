@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://crfdl65mmwh1j"]
+
+[ext_resource type="Script" uid="uid://dcgf4oqqi8n5s" path="res://g_src/UI/Controls/UOGumpButton.cs" id="1_o3snm"]
+
+[node name="UOGumpButton" type="TextureButton"]
+script = ExtResource("1_o3snm")

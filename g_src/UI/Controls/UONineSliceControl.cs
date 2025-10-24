@@ -42,7 +42,7 @@ public partial class UONineSliceControl : Control
 		{
 			int graphicIndex = GetGraphicIndex(i);
 
-			var texture = AssetHelper.GetGumpTexture((ushort)(_graphic + graphicIndex), true);
+			var texture = AssetHelper.GetGumpTexture((ushort)(_graphic + graphicIndex));
 
 			_pieces[i] = new TextureRect();
 			_pieces[i].Texture = texture;
@@ -192,23 +192,6 @@ public partial class UONineSliceControl : Control
 
 		CreatePieces();
 		CalculateOffsets();
-
-		// Debug output
-		GD.Print($"=== UONineSliceControl Debug ===");
-		GD.Print($"Desired: {_desiredWidth}x{_desiredHeight}");
-		GD.Print($"Offsets - Top: {_offsetTop}, Bottom: {_offsetBottom}, Left: {_offsetLeft}, Right: {_offsetRight}");
-		for (int i = 0; i < 9; i++)
-		{
-			GD.Print($"Piece {i}: TextureSize={_pieceSizes[i]}");
-		}
-
 		PositionPieces();
-
-		// Debug output AFTER positioning
-		GD.Print($"=== After Positioning ===");
-		for (int i = 0; i < 9; i++)
-		{
-			GD.Print($"Piece {i}: Position={_pieces[i].Position}, Size={_pieces[i].Size}");
-		}
 	}
 }
