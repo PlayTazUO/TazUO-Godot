@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MP3Sharp", "TazUO\external\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FontStashSharp.FNA.Core", "TazUO\external\FontStashSharp\src\XNA\FontStashSharp.FNA.Core.csproj", "{0F7DB2FB-1207-4585-BAD1-81A13CA62A69}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "headless-uoc", "submodules\headless-uoc\headless-uoc.csproj", "{6E3A7A94-4540-4553-8713-9DE6AFF90AD9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 	Debug|Any CPU = Debug|Any CPU
@@ -69,5 +71,11 @@ Global
 		{0F7DB2FB-1207-4585-BAD1-81A13CA62A69}.ExportDebug|Any CPU.Build.0 = Debug|Any CPU
 		{0F7DB2FB-1207-4585-BAD1-81A13CA62A69}.ExportRelease|Any CPU.ActiveCfg = Debug|Any CPU
 		{0F7DB2FB-1207-4585-BAD1-81A13CA62A69}.ExportRelease|Any CPU.Build.0 = Debug|Any CPU
+		{6E3A7A94-4540-4553-8713-9DE6AFF90AD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E3A7A94-4540-4553-8713-9DE6AFF90AD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E3A7A94-4540-4553-8713-9DE6AFF90AD9}.ExportDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E3A7A94-4540-4553-8713-9DE6AFF90AD9}.ExportDebug|Any CPU.Build.0 = Debug|Any CPU
+		{6E3A7A94-4540-4553-8713-9DE6AFF90AD9}.ExportRelease|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E3A7A94-4540-4553-8713-9DE6AFF90AD9}.ExportRelease|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 EndGlobal

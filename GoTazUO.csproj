@@ -11,11 +11,20 @@
     <EmbeddedResource Remove="TazUO\**" />
     <None Remove="TazUO\**" />
   </ItemGroup>
-
+    
+    <ItemGroup>
+        <Compile Remove="submodules\headless-uoc\**" />
+        <EmbeddedResource Remove="submodules\headless-uoc\**" />
+        <None Remove="submodules\headless-uoc\**" />
+    </ItemGroup>
+    
   <ItemGroup>
+    <ProjectReference Include="submodules\headless-uoc\headless-uoc.csproj" />
     <ProjectReference Include="TazUO\src\ClassicUO.Assets\ClassicUO.Assets.csproj" /> 
     <ProjectReference Include="TazUO\src\ClassicUO.IO\ClassicUO.IO.csproj" /> 
     <ProjectReference Include="TazUO\src\ClassicUO.Utility\ClassicUO.Utility.csproj" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.0" />
   </ItemGroup>
+
+
 </Project>

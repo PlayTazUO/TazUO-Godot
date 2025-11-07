@@ -7,3 +7,6 @@
 [submodule "external/FileEmbed"]
 	path = external/FileEmbed
 	url = https://github.com/SirCxyrtyx/FileEmbed.git
+[submodule "submodules/headless-uoc"]
+	path = submodules/headless-uoc
+	url = git@github.com:PlayTazUO/headless-uoc.git
