@@ -13,6 +13,7 @@ using Logger = Client.Logger;
 
 namespace TazUO;
 
+[Tool]
 public partial class Client : Node
 {
 	[Export] public CanvasLayer UILayer { get; set; }
@@ -30,7 +31,7 @@ public partial class Client : Node
 
 	public Client()
 	{
-		if (OS.HasFeature("editor"))
+		if (Engine.IsEditorHint())
 			UserPath = ProjectSettings.GlobalizePath("user://");
 		else
 			UserPath = OS.GetExecutablePath().PathJoin("Data");
@@ -87,6 +88,16 @@ public partial class Client : Node
 		{
 			LoadFileManager(uoPath);
 		}
+		
+		UILayer.AddChild(LoginScene.Get());
+	}
+
+	public UOFileManager GetFileManager()
+	{
+		if (FileManager != null) return FileManager;
+		
+		LoadFileManager(UserPath);
+		return FileManager;
 	}
 
 	private void LoadFileManager(string path, string ver = "7.0.110.48")
@@ -104,8 +115,6 @@ public partial class Client : Node
 		{
 			FileManager = new UOFileManager(version, path);
 			FileManager.Load(false, "en");
-			
-			UILayer.AddChild(LoginScene.Get());
 		}
 	}
 	

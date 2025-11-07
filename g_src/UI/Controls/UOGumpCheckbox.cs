@@ -3,6 +3,7 @@ using System;
 using TazUO.Godot.Utility;
 using TazUOGodot.g_src.UI.Controls;
 
+[Tool]
 public partial class UOGumpCheckbox : BaseButton
 {
 	public bool Checked { get; private set; }

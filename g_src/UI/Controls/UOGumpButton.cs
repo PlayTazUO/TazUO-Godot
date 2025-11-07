@@ -4,6 +4,7 @@ using TazUO.Godot.Utility;
 
 namespace TazUOGodot.g_src.UI.Controls;
 
+[Tool]
 public partial class UOGumpButton : TextureButton
 {
 	public static UOGumpButton Get(ushort normal, ushort pressed, ushort hover)

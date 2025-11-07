@@ -3,6 +3,7 @@ using TazUO.Godot.Utility;
 
 namespace TazUOGodot.g_src.UI.Controls;
 
+[Tool]
 public partial class UONineSliceControl : Control
 {
 	private readonly ushort _graphic;

@@ -1,23 +1,45 @@
 using Godot;
 using TazUO.Godot.Utility;
 
-namespace TazUOGodot.g_src.UI.Controls;
-
+[Tool]
 public partial class TiledGumpSprite : TextureRect
 {
-    private readonly ushort _graphic;
-    private readonly int _width;
-    private readonly int _height;
+	private ushort _graphic;
+	private int _width;
+	private int _height;
 
-    public TiledGumpSprite(ushort graphic, int width, int height)
-    {
-        _graphic = graphic;
-        _width = width;
-        _height = height;
+	[Export] public ushort Graphic
+	{
+		get => _graphic;
+		set
+		{
+			_graphic = value;
+			Texture = AssetHelper.GetGumpTexture(_graphic, true);
+		}
+	}
 
-        Texture = AssetHelper.GetGumpTexture(graphic, true);
-        StretchMode = StretchModeEnum.Tile;
-        Size = new Vector2(_width, _height);
-        GD.Print($"Expected: {_width}x{_height}, real: {Size.X}x{Size.Y}");
-    }
+	[Export] public int Width
+	{
+		get => _width;
+		set 
+		{
+			_width = value;
+			Size = new Vector2(_width, _height);
+		}
+	}
+
+	[Export] public int Height
+	{
+		get => _height;
+		set
+		{
+			_height = value;
+			Size = new Vector2(_width, _height);
+		}
+	}
+
+	public TiledGumpSprite()
+	{
+		StretchMode = StretchModeEnum.Tile;
+	}
 }

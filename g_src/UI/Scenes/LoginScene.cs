@@ -21,11 +21,6 @@ public partial class LoginScene : Control
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		var rect = GetRect();
-		AddChild(new TiledGumpSprite(0x0E14, (int)rect.Size.X, (int)rect.Size.Y)); //Tiled BG
-
-		AddChild(new GumpSprite(0x014E)); //Background
-
 		UOGumpButton button;
 		AddChild(button = UOGumpButton.Get(0x05CA, 0x05C9, 0x05C8)); //Quit
 		button.Position = new Vector2(25, 240);
