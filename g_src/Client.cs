@@ -1,5 +1,6 @@
 using Godot;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using ClassicUO.Assets;
 using ClassicUO.Utility;
@@ -25,6 +26,11 @@ public partial class Client : Node
 	public string ClientVersion;
 	public Task ConnectionTask;
 	
+	/// <summary>
+	/// For editor use, set this to your UO file path. Don't commit it, will be fixed later, I know it's stupid for now
+	/// </summary>
+	public const string EDITOR_ONLY_DATA_PATH = "/home/tazman/UO/UOAlive 7.0.110.48/";
+	
 	private const string UOPATHSAVE = "UOPATHSAVED";
 
 	private EventListeners _listeners;
@@ -34,7 +40,7 @@ public partial class Client : Node
 		if (Engine.IsEditorHint())
 			UserPath = ProjectSettings.GlobalizePath("user://");
 		else
-			UserPath = OS.GetExecutablePath().PathJoin("Data");
+			UserPath = Path.GetDirectoryName(OS.GetExecutablePath()).PathJoin("Data");
 		
 		Settings = new(UserPath);
 		
@@ -82,14 +88,14 @@ public partial class Client : Node
 				
 				SetUOPath(s);
 				LoadFileManager(s);
+				UILayer.AddChild(LoginScene.Get());
 			}));
 		}
 		else
 		{
 			LoadFileManager(uoPath);
+			UILayer.AddChild(LoginScene.Get());
 		}
-		
-		UILayer.AddChild(LoginScene.Get());
 	}
 
 	public UOFileManager GetFileManager()
